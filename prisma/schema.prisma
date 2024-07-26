@@ -9,3 +9,12 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Job {
+    id          String  @id @default(uuid())
+    status      String
+    createdAt    DateTime @default(now())
+    startedAt     DateTime?
+    completedAt  DateTime?
+    result      String?
+}

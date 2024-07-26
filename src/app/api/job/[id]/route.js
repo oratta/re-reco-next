@@ -1,8 +1,10 @@
 import {jobManager} from "@/lib/jobs";
 import {NextResponse} from "next/server";
 
-export async function PUT(request) {
-    const jobId = request.url.split('/').pop();
-    await jobManager.runJob(jobId);
+export async function PUT(request, {params}) {
+    const {id} = params;
+    await jobManager.runJob(id);
     return NextResponse.json({ success: true });
 }
+
+export const dynamic = 'force-dynamic';

@@ -1,40 +1,45 @@
 import { v4 as uuidv4 } from 'uuid';
+import prisma from "@/lib/prisma";
 
 class JobManager {
-    constructor() {
-        this.jobs = [];
-    }
-
-    createJob(){
-        const job = {
-            id: uuidv4(),
-            status: 'pending',
-            createAt: new Date(),
-        };
-        this.jobs.push(job);
+    async createJob(){
+        const job = await prisma.job.create({
+            data: {
+                status: 'pending',
+            },
+        })
         return job.id;
     }
 
     async runJob(id){
-        const job = this.jobs.find(j => j.id === id);
+        if(!id) throw new Error('Job ID is required');
+        let job = await prisma.job.findUnique({where: {id: id}})
         if(!job) throw new Error('Job not found');
 
-        job.status = 'running';
-        job.startedAt = new Date();
+        job = await prisma.job.update({
+            where: {id},
+            data: {status: 'running', startedAt: new Date()}
+        });
 
+        //TODO Implement Job task
         await new Promise(resolve => setTimeout(resolve, 5000));
 
-        job.status = 'completed';
-        job.completedAt = new Date();
-        job.result = 'Job completed successfully';
+        job = await prisma.job.update({
+            where: {id},
+            data: {
+                status: 'completed',
+                completedAt: new Date(),
+                result: 'Job completed successfully'
+            },
+        })
     }
 
-    getJobs() {
-        return this.jobs;
+    async getJobs() {
+        return prisma.job.findMany({orderBy: {createdAt: 'desc'}});
     }
 
-    getJob(id) {
-        return this.jobs.find(j => j.id === id);
+    async getJob(id) {
+        return prisma.job.findUnique({where: {id}});
     }
 }
 

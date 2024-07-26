@@ -16,7 +16,7 @@ export default function JobOrderPage() {
 
     useEffect(()=>{
         fetchJobs();
-        const interval = setInterval(fetchJobs, 1000);
+        const interval = setInterval(fetchJobs, 10000);
         return () => clearInterval(interval);
     }, []);
 

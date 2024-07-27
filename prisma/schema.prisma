@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,6 +5,81 @@ generator client {
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+model Cast {
+  id                           String               @id @default(uuid())
+  code                         String               @unique
+  name                         String
+  groupId                      String
+  averageTotalCount            Float
+  totalReservationRate         Float
+  recent1ReservationRate       Float
+  recent5ReservationRate       Float
+  recent30daysReservationRate  Float
+  reservationUrl               String
+  group                        Group                @relation(fields: [groupId], references: [id])
+  jobReservationRates          JobReservationRate[]
+  createdAt                    DateTime             @default(now())
+  updatedAt                    DateTime             @updatedAt
+}
+
+model Group {
+  id                           String  @id @default(uuid())
+  code                         String  @unique
+  name                         String
+  totalReservationRate         Float
+  recent1ReservationRate       Float
+  recent5ReservationRate       Float
+  recent30daysReservationRate  Float
+  reservationListUrl           String
+  casts                        Cast[]
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+}
+
+model Area {
+  id            String        @id @default(uuid())
+  name          String
+  code          String        @unique
+  jobListings   JobListing[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model JobListing {
+  id                  String               @id @default(uuid())
+  status              String
+  areaId              String
+  targetDate          DateTime
+  listCount           Int
+  condition           String
+  startedAt           DateTime?
+  completedAt         DateTime?
+  area                Area                 @relation(fields: [areaId], references: [id])
+  jobReservationRates JobReservationRate[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+}
+
+model JobReservationRate {
+  id            String     @id @default(uuid())
+  status        String
+  castId        String
+  areaCode      String
+  groupCode     String
+  reservedRate  Float
+  reservedCount Int
+  emptyCount    Int
+  totalCount    Int
+  jobListingId  String
+  isLastList    Boolean
+  startedAt     DateTime?
+  completedAt   DateTime?
+  cast          Cast       @relation(fields: [castId], references: [id])
+  jobListing    JobListing @relation(fields: [jobListingId], references: [id])
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
 model Job {

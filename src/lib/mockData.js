@@ -8,8 +8,8 @@ export const mockData = {
         { id: '2', code: 'G002', name: 'Group 2', totalReservationRate: 0.7, recent1ReservationRate: 0.8, recent5ReservationRate: 0.75, recent30daysReservationRate: 0.72, reservationListUrl: 'http://example.com/group2' },
     ],
     areas: [
-        { id: '1', name: 'Area 1', code: 'A001' },
-        { id: '2', name: 'Area 2', code: 'A002' },
+        { id: '1', name: '渋谷', code: 'A001' },
+        { id: '2', name: '新宿', code: 'A002' },
     ],
     jobListings: [
         { id: '1', status: 'completed', areaId: '1', targetDate: '2023-05-01', listCount: 5, condition: 'condition1', startedAt: '2023-04-30T10:00:00Z', completedAt: '2023-04-30T10:30:00Z' },

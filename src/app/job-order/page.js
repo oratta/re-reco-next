@@ -1,69 +1,40 @@
 'use client';
 
-import {useState, useEffect} from "react";
-import JobList from "@/app/components/JobList";
-import JobDetail from "@/app/components/JobDetails";
+import { useState } from 'react';
+import JobOrderForm from './JobOrderForm';
+import JobListingList from './JobListingList';
+import JobListingDetail from './JobListingDetail';
 
-export default function JobOrderPage() {
-    const [jobs, setJobs] = useState([]);
-    const [selectedJob, setSelectedJob] = useState(null);
+export default function JobOrderView() {
+    const [jobListings, setJobListings] = useState([]);
+    const [selectedJobListing, setSelectedJobListing] = useState(null);
 
-    const fetchJobs = async () => {
-        const response = await fetch('/api/job');
-        const data = await response.json();
-        setJobs(data.jobs);
-    }
-
-    useEffect(()=>{
-        fetchJobs();
-        const interval = setInterval(fetchJobs, 10000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const handleCreateJob = async () => {
-        await fetch('/api/job', {method: 'POST'});
-        fetchJobs();
-    }
-    const handleRunJob = async (jobId) => {
-        await fetch(`/api/job/${jobId}`, { method: 'PUT' });
-        fetchJobs();
+    const handleJobOrderSubmit = async (formData) => {
+        // TODO: API呼び出しを実装
+        console.log('Job order submitted:', formData);
+        // ダミーデータを追加
+        setJobListings(prevListings => [...prevListings, {
+            id: Date.now().toString(),
+            status: 'pending',
+            ...formData
+        }]);
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">
-                Job Order
-            </h1>
-            <button
-                className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded mb-4"
-                onClick={handleCreateJob}
-            >
-                New Job
-            </button>
-            <div className="flex">
-                <div className="w-1/2 pr-4">
-                    <JobList jobs={jobs} onJobClick={setSelectedJob} />
+        <div className="space-y-6">
+            <h1 className="text-3xl font-bold">ジョブ注文</h1>
+            <JobOrderForm onSubmit={handleJobOrderSubmit} />
+            <div className="flex space-x-4">
+                <div className="w-1/2">
+                    <JobListingList
+                        jobListings={jobListings}
+                        onSelectJobListing={setSelectedJobListing}
+                    />
                 </div>
-                <div className="w-1/2 pl-4">
-                    {selectedJob && <JobDetail job={selectedJob} onRunJob={handleRunJob} />}
+                <div className="w-1/2">
+                    {selectedJobListing && <JobListingDetail jobListing={selectedJobListing} />}
                 </div>
             </div>
         </div>
-        // <div className="md:flex flex-row gap-4">
-        //     <div className="basis-1/2">
-        //         <h3>Job Order</h3>
-        //         <div className="bg-white rounded text-amber-900">
-        //             <form>
-        //                 <label className="font-bold" htmlFor="">エリア: </label>
-        //             </form>
-        //         </div>
-        //     </div>
-        //     <div className="basis-1/2">
-        //         <h3>Que</h3>
-        //         <div className="bg-white rounded">box
-        //             box
-        //         </div>
-        //     </div>
-        // </div>
     );
 }

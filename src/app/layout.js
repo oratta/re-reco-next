@@ -29,20 +29,25 @@ export default function RootLayout({children}) {
                 </div>
             </div>
         </h1>
-        <ul className="flex bg-gray-600 mb-4 pl-2">
-            <li className="block px-4 py-2 my-1 hover:bg-gray-100 rounded">
+        <ul className="flex bg-gray-500 mb-4 pl-2">
+            <li className="block px-4 py-2 my-1 hover:bg-gray-700 rounded">
                 <Link className="no-underline text-blue-300" href="/">
                     Dashboard
                 </Link>
             </li>
-            <li className="block px-4 py-2 my-1 hover:bg-gray-100 rounded">
-                <Link className="no-underline text-blue-300" href="/job_order">
+            <li className="block px-4 py-2 my-1 hover:bg-gray-700 rounded">
+                <Link className="no-underline text-blue-300" href="/job-order">
                     JobOrder
                 </Link>
             </li>
-            <li className="block px-4 py-2 my-1 hover:bg-gray-100 rounded">
+            <li className="block px-4 py-2 my-1 hover:bg-gray-700 rounded">
                 <Link className="no-underline text-blue-300" href="/recommend">
                     Recommend
+                </Link>
+            </li>
+            <li className="block px-4 py-2 my-1 hover:bg-gray-700 rounded">
+                <Link className="no-underline text-blue-300" href="/settings">
+                    Settings
                 </Link>
             </li>
         </ul>

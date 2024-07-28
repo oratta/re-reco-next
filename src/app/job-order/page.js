@@ -1,13 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import JobOrderForm from './JobOrderForm';
 import JobListingList from './JobListingList';
 import JobListingDetail from './JobListingDetail';
+import {fetchApi} from "@/lib/api";
 
 export default function JobOrderView() {
     const [jobListings, setJobListings] = useState([]);
     const [selectedJobListing, setSelectedJobListing] = useState(null);
+    const [areas, setAreas] = useState([]);
+
+    useEffect(() => {
+        async function fetchAreas() {
+            try {
+                setAreas(await fetchApi('/api/areas'));
+            } catch (error) {
+                console.error('Failed to fetch areas');
+            }
+        }
+        fetchAreas();
+    }, []);
 
     const handleJobOrderSubmit = async (formData) => {
         // TODO: API呼び出しを実装
@@ -22,7 +35,7 @@ export default function JobOrderView() {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold">ジョブ注文</h1>
+            <h1 className="text-3xl font-bold">Job Order</h1>
             <JobOrderForm onSubmit={handleJobOrderSubmit} />
             <div className="flex space-x-4">
                 <div className="w-1/2">

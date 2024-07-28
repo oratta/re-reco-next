@@ -1,6 +1,7 @@
 'use client';
 
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
+import {fetchApi} from "@/lib/api";
 
 export default function JobOrderForm({onSubmit}) {
     const [formData, setFormData] = useState({
@@ -8,6 +9,18 @@ export default function JobOrderForm({onSubmit}) {
         targetDate: '',
         condition: ''
     });
+    const [areas, setAreas] = useState([]);
+
+    useEffect(() => {
+        async function fetchAreas() {
+            try {
+                setAreas(await fetchApi('/api/areas'));
+            } catch (error) {
+                console.error('Failed to fetch areas');
+            }
+        }
+        fetchAreas();
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
@@ -37,8 +50,9 @@ export default function JobOrderForm({onSubmit}) {
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 sm:text-sm rounded-md"
                 >
                     <option value="">select...</option>
-                    <option value="1">エリア1</option>
-                    <option value="2">エリア2</option>
+                    {areas.map((area) => (
+                        <option key={area.id} value={area.id}>{area.name}</option>
+                    ))}
                 </select>
             </div>
             <div>

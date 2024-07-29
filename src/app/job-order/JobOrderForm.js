@@ -30,7 +30,7 @@ export default function JobOrderForm({onSubmit}) {
     }
 
     const handleSubmit = (e) => {
-        e.priventDefault();
+        e.preventDefault();
         onSubmit(formData);
     }
 
@@ -47,6 +47,7 @@ export default function JobOrderForm({onSubmit}) {
                     name="areaId"
                     value={formData.areaId}
                     onChange={handleChange}
+                    required
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 sm:text-sm rounded-md"
                 >
                     <option value="">select...</option>
@@ -61,6 +62,7 @@ export default function JobOrderForm({onSubmit}) {
                     type="date"
                     id="targetDate"
                     name="targetDate"
+                    required
                     value={formData.targetDate}
                     onChange={handleChange}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"

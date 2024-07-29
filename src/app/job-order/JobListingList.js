@@ -1,4 +1,4 @@
-export default function JobListingList({jobListings, onSelectJobListing}) {
+export default function JobListingList({jobListings, onSelectJobListing, areas}) {
     return (
         <div>
             <h2 className="mb-4 text-xl font-semibold">Job List</h2>
@@ -9,7 +9,7 @@ export default function JobListingList({jobListings, onSelectJobListing}) {
                         onClick={() => onSelectJobListing(jobListing)}
                         className="p-2 rounded cursor-pointer hover:bg-gray-100"
                     >
-                        {jobListing.areaId} - {jobListing.targetDate} ({jobListing.status})
+                        {areas.find(area=>area.id===jobListing.areaId)?.name || "NoArea"} - {jobListing.targetDate || "NoDate"} ({jobListing.status})
                     </li>
                 ))}
             </ul>

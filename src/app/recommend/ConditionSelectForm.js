@@ -1,19 +1,12 @@
 import { useState, useEffect } from 'react';
-import { fetchApi } from '@/lib/api';
 
-export default function ConditionSelectForm({ category, onSubmit }) {
-    const [areas, setAreas] = useState([]);
+export default function ConditionSelectForm({ category, areas, groups, onSubmit }) {
     const [selectedArea, setSelectedArea] = useState('');
     const [selectedGroup, setSelectedGroup] = useState('');
-    const [jobListings, setJobListings] = useState([]);
 
     useEffect(() => {
-        async function fetchAreas() {
-            const areasData = await fetchApi('/api/areas');;
-            setAreas(areasData);
-        }
-        fetchAreas();
-    }, []);
+        setSelectedGroup('');
+    }, [selectedArea]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -45,8 +38,10 @@ export default function ConditionSelectForm({ category, onSubmit }) {
                         onChange={(e) => setSelectedGroup(e.target.value)}
                         className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                     >
-                        <option value="">選択してください</option>
-                        {/* TODO: グループのオプションを追加 */}
+                        <option value="">全て</option>
+                        {groups.filter(group => !selectedArea || group.areaId === selectedArea).map((group) => (
+                            <option key={group.id} value={group.id}>{group.name}</option>
+                        ))}
                     </select>
                 </div>
             )}

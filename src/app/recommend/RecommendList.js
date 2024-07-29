@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function RecommendList({ data, category }) {
+export default function RecommendList({ data, category, onLoadMore, hasMore }) {
     const [selectedTab, setSelectedTab] = useState('Recent');
 
     const sortedData = [...data].sort((a, b) => {
@@ -53,6 +53,16 @@ export default function RecommendList({ data, category }) {
                 ))}
                 </tbody>
             </table>
+            {hasMore && (
+                <div className="flex justify-center mt-4">
+                    <button
+                        onClick={onLoadMore}
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                        次へ
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

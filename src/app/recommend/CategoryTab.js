@@ -1,18 +1,17 @@
 export default function CategoryTab({ selectedCategory, onCategoryChange }) {
+    const categories = ['Group', 'Cast', 'Job_Listing'];
+
     return (
         <div className="flex space-x-4">
-            <button
-                className={`px-4 py-2 rounded ${selectedCategory === 'Group' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                onClick={() => onCategoryChange('Group')}
-            >
-                Group
-            </button>
-            <button
-                className={`px-4 py-2 rounded ${selectedCategory === 'Cast' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                onClick={() => onCategoryChange('Cast')}
-            >
-                Cast
-            </button>
+            {categories.map((category) => (
+                <button
+                    key={category}
+                    className={`px-4 py-2 rounded ${selectedCategory === category ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                    onClick={() => onCategoryChange(category)}
+                >
+                    {category}
+                </button>
+            ))}
         </div>
     );
 }

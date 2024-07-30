@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react';
 import JobOrderForm from './JobOrderForm';
 import JobListingList from './JobListingList';
 import JobListingDetail from './JobListingDetail';
-import {fetchApi} from "@/lib/api";
+import {fetchApi} from "@/commons/utils/api";
 
 export default function JobOrderView() {
     const [jobListings, setJobListings] = useState([]);

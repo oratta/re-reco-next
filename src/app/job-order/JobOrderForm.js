@@ -1,7 +1,7 @@
 'use client';
 
 import {useState, useEffect} from 'react'
-import {fetchApi} from "@/lib/api";
+import {fetchApi} from "@/commons/utils/api";
 
 export default function JobOrderForm({onSubmit}) {
     const [formData, setFormData] = useState({

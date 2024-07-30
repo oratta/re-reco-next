@@ -5,7 +5,7 @@ import CategoryTab from './CategoryTab';
 import ConditionSelectForm from './ConditionSelectForm';
 import RecommendList from './RecommendList';
 import JobListingSelect from './JobListingSelect';
-import { fetchApi} from '@/lib/api';
+import { fetchApi} from '@/commons/utils/api';
 
 export default function RecommendView() {
     const [selectedCategory, setSelectedCategory] = useState('Group');

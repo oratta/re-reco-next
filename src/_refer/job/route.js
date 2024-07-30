@@ -1,5 +1,5 @@
 import {NextResponse} from "next/server";
-import {jobManager} from "@/lib/jobs";
+import {jobManager} from "@/_refer/jobs";
 
 export async function POST() {
     const jobId = await jobManager.createJob();

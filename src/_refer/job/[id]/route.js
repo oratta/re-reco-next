@@ -1,4 +1,4 @@
-import {jobManager} from "@/lib/jobs";
+import {jobManager} from "@/_refer/jobs";
 import {NextResponse} from "next/server";
 
 export async function PUT(request, {params}) {

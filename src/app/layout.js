@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import './globals.css';
+import '../style/globals.css';
 import {Inconsolata} from 'next/font/google';
 
 const font = Inconsolata({subsets: ['latin']});

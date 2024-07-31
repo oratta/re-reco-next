@@ -23,9 +23,29 @@ export default function JobOrderView() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        async function fetchJobListings(){
+            try {
+                setJobListings(await fetchApiForce('/api/job-listings'));
+            } catch (error) {
+                console.error('Failed to fetch areas');
+            }
+        }
+        fetchJobListings();
+        const interval = setInterval(fetchJobListings, 10000);
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        if (jobListings.length > 0) {
+            // jobListings が更新されたときの処理
+            console.log('Job listings updated:', jobListings);
+        }
+    }, [jobListings]);
+
     const fetchJobListings = async () => {
         const updatedJobListings =  await fetchApiForce('/api/job-listings');
-        setJobListings(old => updatedJobListings);
+        setJobListings(updatedJobListings);
     }
 
     return (

@@ -1,26 +1,21 @@
 'use client';
 
-import {useState, useEffect} from 'react'
-import {fetchApi} from "@/commons/utils/api";
+import { useState, useEffect } from 'react';
+import { fetchApi } from "@/commons/utils/api";
+import { DATE_RANGE_DAYS } from "@/configs/appSetting";
+import formSubmit from "./formSubmit";
 
-export default function JobOrderForm({onSubmit}) {
+export default function JobOrderForm({areas, onSubmit}) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const maxDate = new Date(today);
+    maxDate.setDate(today.getDate() + DATE_RANGE_DAYS);
+
     const [formData, setFormData] = useState({
         areaId: '',
-        targetDate: '',
+        targetDate: today.toISOString().split('T')[0],
         condition: ''
     });
-    const [areas, setAreas] = useState([]);
-
-    useEffect(() => {
-        async function fetchAreas() {
-            try {
-                setAreas(await fetchApi('/api/areas'));
-            } catch (error) {
-                console.error('Failed to fetch areas');
-            }
-        }
-        fetchAreas();
-    }, []);
 
     const handleChange = (e) => {
         setFormData({
@@ -29,17 +24,16 @@ export default function JobOrderForm({onSubmit}) {
         });
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit(formData);
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        formSubmit(formData);
+        onSubmit();
     }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label htmlFor="areaId"
-                       className="block text-sm font-medium text-gray-700"
-                >
+                <label htmlFor="areaId" className="block text-sm font-medium text-gray-700">
                     Area
                 </label>
                 <select
@@ -65,6 +59,8 @@ export default function JobOrderForm({onSubmit}) {
                     required
                     value={formData.targetDate}
                     onChange={handleChange}
+                    min={today.toISOString().split('T')[0]}
+                    max={maxDate.toISOString().split('T')[0]}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                 />
             </div>

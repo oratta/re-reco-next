@@ -1,10 +1,10 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import JobOrderForm from './JobOrderForm';
-import JobListingList from './JobListingList';
-import JobListingDetail from './JobListingDetail';
-import {fetchApi} from "@/commons/utils/api";
+import JobOrderForm from '@/features/listingCast/components/JobOrderForm';
+import JobListingList from '@/features/listingCast/components/JobListingList';
+import JobListingDetail from '@/features/listingCast/components/JobListingDetail';
+import {fetchApi, fetchApiForce} from "@/commons/utils/api";
 
 export default function JobOrderView() {
     const [jobListings, setJobListings] = useState([]);
@@ -12,36 +12,26 @@ export default function JobOrderView() {
     const [areas, setAreas] = useState([]);
 
     useEffect(() => {
-        async function fetchAreas() {
+        async function fetchData() {
             try {
                 setAreas(await fetchApi('/api/areas'));
+                setJobListings(await fetchApi('/api/job-listings'));
             } catch (error) {
                 console.error('Failed to fetch areas');
             }
         }
-        fetchAreas();
+        fetchData();
     }, []);
 
-    const handleJobOrderSubmit = async (formData) => {
-        // TODO: API呼び出しを実装
-        console.log('Job order submitted:', formData);
-        // ダミーデータを追加
-        try{
-            setJobListings(prevListings => [...prevListings, {
-                id: Date.now().toString(),
-                status: 'pending',
-                ...formData
-            }]);
-        }catch(e){
-            console.error('Failed to fetch areas');
-            throw e;
-        }
-    };
+    const fetchJobListings = async () => {
+        const updatedJobListings =  await fetchApiForce('/api/job-listings');
+        setJobListings(old => updatedJobListings);
+    }
 
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold">Job Order</h1>
-            <JobOrderForm onSubmit={handleJobOrderSubmit} />
+            <JobOrderForm areas={areas} onSubmit={fetchJobListings} />
             <div className="flex space-x-4">
                 <div className="w-1/2">
                     <JobListingList

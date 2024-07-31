@@ -1,10 +1,11 @@
 import { mockData } from '@/commons/utils/mockData';
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import services from '@/features/listingCast/services/index.js';
+import prisma from '@/commons/libs/prisma';
 
-export async function POST(request) {
+export async function POST(request, {params}) {
+    console.log("request post api/job-listings");
     try {
+        // リクエストボディを一度だけ読み取り、変数に保存
         const body = await request.json();
         const { areaId, targetDate, condition } = body;
 
@@ -18,12 +19,15 @@ export async function POST(request) {
             },
         });
 
+        // runJobを非同期で実行し、その結果を待つ
         await runJob(jobListing.id);
 
         return NextResponse.json(jobListing, { status: 201 });
     } catch (error) {
         console.error('Failed to create job listing:', error);
-        return NextResponse.json({ error: 'Failed to create job listing' }, { status: 500 });
+        console.error('Error details:', error.message);
+        console.error('Error stack:', error.stack);
+        return NextResponse.json({ error: 'Failed to create job listing', details: error.message }, { status: 500 });
     }
 }
 
@@ -40,12 +44,13 @@ export async function GET() {
     }
 }
 
-async function runJob(id){
+async function runJob(id) {
     if(!id) throw new Error('Job ID is required');
-    let job = await prisma.job.findUnique({where: {id: id}})
+
+    let job = await prisma.jobListing.findUnique({where: {id: id}});
     if(!job) throw new Error('Job not found');
 
-    job = await prisma.job.update({
+    job = await prisma.jobListing.update({
         where: {id},
         data: {status: 'running', startedAt: new Date()}
     });
@@ -53,12 +58,14 @@ async function runJob(id){
     //TODO Implement Job task
     await new Promise(resolve => setTimeout(resolve, 5000));
 
-    job = await prisma.job.update({
+    job = await prisma.jobListing.update({
         where: {id},
         data: {
             status: 'completed',
             completedAt: new Date(),
             result: 'Job completed successfully'
         },
-    })
+    });
+
+    return job;
 }

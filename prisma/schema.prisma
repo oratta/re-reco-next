@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "darwin-arm64"]
 }
 
@@ -9,43 +9,43 @@ datasource db {
 }
 
 model Cast {
-  id                           String               @id @default(uuid())
-  code                         String               @unique
-  name                         String
-  groupId                      String
-  averageTotalCount            Float
-  totalReservationRate         Float
-  recent1ReservationRate       Float
-  recent5ReservationRate       Float
-  recent30daysReservationRate  Float
-  reservationUrl               String
-  group                        Group                @relation(fields: [groupId], references: [id])
-  jobReservationRates          JobReservationRate[]
-  createdAt                    DateTime             @default(now())
-  updatedAt                    DateTime             @updatedAt
+  id                          String               @id @default(uuid())
+  code                        String               @unique
+  name                        String
+  groupId                     String
+  averageTotalCount           Float
+  totalReservationRate        Float
+  recent1ReservationRate      Float
+  recent5ReservationRate      Float
+  recent30daysReservationRate Float
+  reservationUrl              String
+  createdAt                   DateTime             @default(now())
+  updatedAt                   DateTime             @updatedAt
+  group                       Group                @relation(fields: [groupId], references: [id])
+  jobReservationRates         JobReservationRate[]
 }
 
 model Group {
-  id                           String  @id @default(uuid())
-  code                         String  @unique
-  name                         String
-  totalReservationRate         Float
-  recent1ReservationRate       Float
-  recent5ReservationRate       Float
-  recent30daysReservationRate  Float
-  reservationListUrl           String
-  casts                        Cast[]
-  createdAt                    DateTime @default(now())
-  updatedAt                    DateTime @updatedAt
+  id                          String   @id @default(uuid())
+  code                        String   @unique
+  name                        String
+  totalReservationRate        Float
+  recent1ReservationRate      Float
+  recent5ReservationRate      Float
+  recent30daysReservationRate Float
+  reservationListUrl          String
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+  casts                       Cast[]
 }
 
 model Area {
-  id            String        @id @default(uuid())
-  name          String
-  code          String        @unique
-  jobListings   JobListing[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id          String       @id @default(uuid())
+  name        String
+  code        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  jobListings JobListing[]
 }
 
 model JobListing {
@@ -55,12 +55,13 @@ model JobListing {
   targetDate          DateTime
   listCount           Int
   condition           String
+  result              String?
   startedAt           DateTime?
   completedAt         DateTime?
-  area                Area                 @relation(fields: [areaId], references: [id])
-  jobReservationRates JobReservationRate[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+  area                Area                 @relation(fields: [areaId], references: [id])
+  jobReservationRates JobReservationRate[]
 }
 
 model JobReservationRate {
@@ -73,21 +74,22 @@ model JobReservationRate {
   reservedCount Int
   emptyCount    Int
   totalCount    Int
+  result        String?
   jobListingId  String
   isLastList    Boolean
   startedAt     DateTime?
   completedAt   DateTime?
-  cast          Cast       @relation(fields: [castId], references: [id])
-  jobListing    JobListing @relation(fields: [jobListingId], references: [id])
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+  jobListing    JobListing @relation(fields: [jobListingId], references: [id])
+  cast          Cast       @relation(fields: [castId], references: [id])
 }
 
 model Job {
-    id          String  @id @default(uuid())
-    status      String
-    createdAt    DateTime @default(now())
-    startedAt     DateTime?
-    completedAt  DateTime?
-    result      String?
+  id          String    @id @default(uuid())
+  status      String
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  result      String?
 }

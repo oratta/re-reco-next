@@ -1,0 +1,1 @@
+export const DATE_RANGE_DAYS = 7;

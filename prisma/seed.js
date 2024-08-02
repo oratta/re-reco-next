@@ -8,6 +8,7 @@ async function main() {
         { name: 'Tokyo', code: 'TKY' },
         { name: 'Osaka', code: 'OSK' },
         { name: 'Fukuoka', code: 'FUK' },
+        { name: '五反田', code: 'tokyo/A1317/A131703'}
     ]
 
     for (const area of areas) {

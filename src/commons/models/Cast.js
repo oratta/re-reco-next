@@ -1,4 +1,30 @@
 import prisma from '../libs/prisma';
+import {URL_BASE_CAST_LIST} from "@/configs/appConst";
+
+export function urlToCastData(href){
+    //[0]https:/[1]/[2]www.cityheaven.net/[3]tokyo/[4]A1304/[5]A130401/[6]blendatokyo-s/[7]A6ShopReservation/[8]?girl_id=54263599
+    const idMatch = href.match(/girl_id=(\d+)/);
+    const id = idMatch ? idMatch[1] : null;
+
+    // areaCodeを抽出
+    const areaCodeMatch = href.match(/\/([^\/]+\/[^\/]+\/[^\/]+)\//);
+    const areaCode = areaCodeMatch ? areaCodeMatch[1] : null;
+
+    // groupCodeを抽出
+    const groupCodeMatch = href.match(/\/([^\/]+)\/A6ShopReservation\//);
+    const groupCode = groupCodeMatch ? groupCodeMatch[1] : null;
+
+    const reservationUrl = `${URL_BASE_CAST_LIST}${href}`;
+    return {
+        code: id,
+        areaCode,
+        groupCode,
+        reservationUrl: reservationUrl,
+        group: {
+            reservationListUrl: reservationUrl.split('?')[0]
+        }
+    };
+}
 
 export async function updateCastData(castId) {
     try {

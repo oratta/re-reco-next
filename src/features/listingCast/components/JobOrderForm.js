@@ -12,7 +12,7 @@ export default function JobOrderForm({areas, onSubmit}) {
     maxDate.setDate(today.getDate() + DATE_RANGE_DAYS);
 
     const [formData, setFormData] = useState({
-        areaId: '',
+        areaCode: '',
         targetDate: today.toISOString().split('T')[0],
         condition: ''
     });
@@ -33,20 +33,20 @@ export default function JobOrderForm({areas, onSubmit}) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label htmlFor="areaId" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="areaCode" className="block text-sm font-medium text-gray-700">
                     Area
                 </label>
                 <select
-                    id="areaId"
-                    name="areaId"
-                    value={formData.areaId}
+                    id="areaCode"
+                    name="areaCode"
+                    value={formData.areaCode}
                     onChange={handleChange}
                     required
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 sm:text-sm rounded-md"
                 >
                     <option value="">select...</option>
                     {areas.map((area) => (
-                        <option key={area.id} value={area.id}>{area.name}</option>
+                        <option key={area.code} value={area.code}>{area.name}</option>
                     ))}
                 </select>
             </div>

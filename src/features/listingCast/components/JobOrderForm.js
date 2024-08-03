@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { fetchApi } from "@/commons/utils/api";
 import { DATE_RANGE_DAYS } from "@/configs/appSetting";
-import formSubmit from "./formSubmit";
+import formSubmit from "./actions/formSubmit";
+
+import {formatDate} from "date-fns";
 
 export default function JobOrderForm({areas, onSubmit}) {
     const today = new Date();
@@ -13,8 +15,8 @@ export default function JobOrderForm({areas, onSubmit}) {
 
     const [formData, setFormData] = useState({
         areaCode: '',
-        targetDate: today.toISOString().split('T')[0],
-        condition: ''
+        targetDate: formatDate(new Date(), 'yyyy-MM-dd'),
+        condition: 'girl-list/biz6/typ101-typ102-typ103-typ202-typ203-typ304-typ305-typ306-typ307-typ308'
     });
 
     const handleChange = (e) => {
@@ -65,9 +67,8 @@ export default function JobOrderForm({areas, onSubmit}) {
                 />
             </div>
             <div>
-                <label htmlFor="condition" className="block text-sm font-medium text-gray-700">条件</label>
                 <input
-                    type="text"
+                    type="hidden"
                     id="condition"
                     name="condition"
                     value={formData.condition}

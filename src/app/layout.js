@@ -50,6 +50,11 @@ export default function RootLayout({children}) {
                     Settings
                 </Link>
             </li>
+            <li className="block px-4 py-2 my-1 hover:bg-gray-700 rounded">
+                <Link className="no-underline text-blue-300" href="/job-reservation-rate-list">
+                    ReReLi
+                </Link>
+            </li>
         </ul>
         <div className="ml-2">
             {children}

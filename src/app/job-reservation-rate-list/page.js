@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {ChevronUpIcon, ChevronDownIcon} from "@heroicons/react/24/solid";
+import {consoleLog} from "@/commons/utils/log";
 
 
 export default function JobReservationRateListView() {
@@ -37,7 +38,7 @@ export default function JobReservationRateListView() {
 
     const executeJobReservationRate = async (id) => {
         try {
-            const response = await fetch(`/api/job-reservation-rate/${id}`, {
+            const response = await fetch(`/api/job-reservation-rates/${id}`, {
                 method: 'POST',
             });
             if (response.ok) {
@@ -45,6 +46,7 @@ export default function JobReservationRateListView() {
                 fetchData();
             } else {
                 alert('Failed to start Job Reservation Rate execution');
+                consoleLog(response);
             }
         } catch (error) {
             console.error('Error executing job reservation rate:', error);

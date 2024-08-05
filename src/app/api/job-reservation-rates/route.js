@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/commons/libs/prisma';
+import {getRunableList, getRunableListCount} from "@/commons/models/JobReservationRate";
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
@@ -8,16 +9,11 @@ export async function GET(request) {
 
     try {
         // データの総数を取得
-        const totalCount = await prisma.jobReservationRate.count();
+        const totalCount = await getRunableListCount();
 
         // データを取得（ページング処理付き）
-        const jobReservationRates = await prisma.jobReservationRate.findMany({
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-            orderBy: {
-                createdAt: 'desc'  // 作成日時の降順でソート
-            }
-        });
+        const jobReservationRates = await getRunableList(page, pageSize);
+        console.log(jobReservationRates);
 
         // 総ページ数を計算
         const totalPages = Math.ceil(totalCount / pageSize);

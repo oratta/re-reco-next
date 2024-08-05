@@ -1,5 +1,6 @@
 import * as Cast from "@/commons/models/Cast";
 import {URL_BASE_CAST_LIST} from "@/configs/appConst";
+import {consoleError, consoleLog} from "@/commons/utils/log";
 
 export function getPagingList($){
     return  $('.shop_nav_list a')
@@ -19,4 +20,15 @@ export function getCastList($){
             return Cast.urlToCastData(href);
         })
         .get();
+}
+
+export function getReservationUrl(cast){
+    if(!cast || !cast.areaCode || !cast.groupCode || !cast.code){
+        const e = new Error("invalid cast");
+        consoleError(e,cast);
+        throw e;
+    }
+    const url = `https://yoyaku.cityheaven.net/calendar/${cast.areaCode}/${cast.groupCode}/1/${cast.code}`;
+    consoleLog(url);
+    return url;
 }

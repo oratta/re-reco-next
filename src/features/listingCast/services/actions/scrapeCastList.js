@@ -6,6 +6,7 @@ import * as Cast from "@/commons/models/Cast";
 import {consoleError, consoleLog} from "@/commons/utils/log";
 import {getCastList, getListSize, getPagingList} from "@/features/listingCast/services/actions/domHeaven.v1";
 import {formatDate} from "date-fns";
+import {getQuery} from "@/commons/utils/cheerioUtil";
 
 /**
  * TODO ページング対応
@@ -48,12 +49,6 @@ export async function scrapeCastList(jobListing) {
         consoleError(error, "failed to get scraping list", false);
         return { success: false, message: 'Scraping failed'};
     }
-}
-
-async function getQuery(url){
-    const response = await fetch(url);
-    const html = await response.text();
-    return cheerio.load(html);
 }
 
 async function createJobReserveRate($, jobListingId) {
@@ -135,7 +130,6 @@ async function createJobReserveRate($, jobListingId) {
 }
 
 function getUrl(jobListing) {
-    //TODO implement
     // return "https://www.cityheaven.net/tokyo/A1304/A130401-A130404/girl-list/";
     consoleLog(jobListing);
     return `${URL_BASE_CAST_LIST}/${jobListing.areaCode}/${jobListing.condition}/${formatDate(jobListing.targetDate,"'date'yyyyMMdd")}/`;

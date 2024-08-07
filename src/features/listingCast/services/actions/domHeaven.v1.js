@@ -22,7 +22,7 @@ export function getCastList($){
         .get();
 }
 
-export function getReservationUrl(cast){
+export function getReservationIFrameUrl(cast){
     if(!cast || !cast.areaCode || !cast.groupCode || !cast.code){
         const e = new Error("invalid cast");
         consoleError(e,cast);
@@ -30,5 +30,17 @@ export function getReservationUrl(cast){
     }
     const url = `https://yoyaku.cityheaven.net/calendar/${cast.areaCode}/${cast.groupCode}/1/${cast.code}`;
     consoleLog(url);
+    return url;
+}
+
+export function getReservationUrl(cast){
+    if(!cast || !cast.areaCode || !cast.groupCode || !cast.code){
+        const e = new Error("invalid cast");
+        consoleError(e,cast);
+        throw e;
+    }
+
+    const url = `https://www.cityheaven.net/${cast.areaCode}/${cast.groupCode}/A6ShopReservation/?girl_id=${cast.code}`;
+    consoleLog(`scrapingUrl: ${url}`);
     return url;
 }

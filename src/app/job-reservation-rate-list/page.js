@@ -42,15 +42,15 @@ export default function JobReservationRateListView() {
                 method: 'POST',
             });
             if (response.ok) {
-                alert('Job Reservation Rate execution started');
+                // alert('Job Reservation Rate execution started');
                 fetchData();
             } else {
-                alert('Failed to start Job Reservation Rate execution');
+                // alert('Failed to start Job Reservation Rate execution');
                 consoleLog(response);
             }
         } catch (error) {
             console.error('Error executing job reservation rate:', error);
-            alert('Error executing job reservation rate');
+            // alert('Error executing job reservation rate');
         }
     };
 

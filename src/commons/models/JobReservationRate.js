@@ -1,4 +1,5 @@
 import prisma from "@/commons/libs/prisma";
+import * as Cast from "@/commons/models/Cast";
 
 export async function start(jobReRe){
     const jobReservationRate =  await prisma.jobReservationRate.update({
@@ -11,7 +12,6 @@ export async function start(jobReRe){
             cast: true
         }
     });
-
     return jobReservationRate;
 }
 
@@ -69,17 +69,27 @@ export async function getRunableListCount() {
     return jobReReList;
 }
 
-export async function finish(jobReRe,msg="job completely finished"){
-    const result = await prisma.jobReservationRate.update({
+export async function finish(jobReRe, msg = "job completely finished") {
+
+    jobReRe = await prisma.jobReservationRate.update({
         where: { id: jobReRe.id },
         data: {
             status: 'completed',
             completedAt: new Date(),
+            totalCount: jobReRe.totalCount,
+            reservedCount: jobReRe.reservedCount,
+            emptyCount: jobReRe.emptyCount,
+            reservedRate: jobReRe.reservedRate,
             result: msg
         },
+        include: {
+            cast: true
+        }
     });
 
-    return result;
+    await Cast.finishJobReservationRate(jobReRe.cast);
+
+    return jobReRe;
 }
 
 export async function failed(jobReRe, msg="job failed"){

@@ -1,5 +1,6 @@
 import prisma from '../libs/prisma';
 import {URL_BASE_CAST_LIST} from "@/configs/appConst";
+import {consoleLog} from "@/commons/utils/log";
 
 export function urlToCastData(href){
     //[0]https:/[1]/[2]www.cityheaven.net/[3]tokyo/[4]A1304/[5]A130401/[6]blendatokyo-s/[7]A6ShopReservation/[8]?girl_id=54263599
@@ -26,40 +27,44 @@ export function urlToCastData(href){
     };
 }
 
-export async function updateCastData(castId) {
+export async function finishJobReservationRate(cast) {
     try {
-        const cast = await prisma.cast.findUnique({
-            where: { id: castId },
-            include: { jobReservationRates: true },
+        const jobReRes = await prisma.jobReservationRate.findMany({
+            where: {
+                castCode: cast.code,
+                status: 'completed',
+            },
+            orderBy: {createdAt: 'desc'},
         });
 
-        if (!cast) {
-            throw new Error('Cast not found');
+        consoleLog(`[Info] JobReservationRate for cast:${cast.code} count:${jobReRes.length}`);
+
+        if (jobReRes.length === 0) {
+            consoleLog(`[Alert] No jobReservationRate for cast:${cast.code}`);
+            throw new Error("No jobReservationRate");
         }
 
-        const totalReservations = cast.jobReservationRates.reduce((sum, rate) => sum + rate.reservedCount, 0);
-        const totalCount = cast.jobReservationRates.reduce((sum, rate) => sum + rate.totalCount, 0);
+        const totalCountSum = jobReRes.reduce((sum, record) => sum + record.totalCount, 0);
+        const reservedRateSum = jobReRes.reduce((sum, record) => sum + record.reservedRate, 0);
+        const recent1ReservationRate = jobReRes[0].reservedRate;
+        const recent5ReservationRate = jobReRes.slice(0, 5).reduce((sum, record) => sum + record.reservedRate, 0) / Math.min(5, jobReRes.length);
+        const recent30daysReservationRate = jobReRes.filter(record => (new Date() - new Date(record.createdAt)) <= 30 * 24 * 60 * 60 * 1000)
+            .reduce((sum, record, _, arr) => sum + record.reservedRate / arr.length, 0);
 
-        const recent1 = cast.jobReservationRates[0] || { reservedRate: 0 };
-        const recent5 = cast.jobReservationRates.slice(0, 5);
-        const recent30days = cast.jobReservationRates.filter(rate =>
-            new Date(rate.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-        );
-
-        const updatedCast = await prisma.cast.update({
-            where: { id: castId },
+        await prisma.cast.update({
+            where: {code: cast.code},
             data: {
-                averageTotalCount: totalCount / cast.jobReservationRates.length,
-                totalReservationRate: totalReservations / totalCount,
-                recent1ReservationRate: recent1.reservedRate,
-                recent5ReservationRate: recent5.reduce((sum, rate) => sum + rate.reservedRate, 0) / recent5.length,
-                recent30daysReservationRate: recent30days.reduce((sum, rate) => sum + rate.reservedRate, 0) / recent30days.length,
-            },
+                averageTotalCount: totalCountSum / jobReRes.length,
+                totalReservationRate: reservedRateSum,
+                recent1ReservationRate,
+                recent5ReservationRate,
+                recent30daysReservationRate
+            }
         });
 
-        return { success: true, updatedCast };
+        return {success: true, message: 'Cast statistics updated successfully.'};
     } catch (error) {
-        console.error('Failed to update cast data:', error);
-        return { success: false, message: error.message };
+        console.error('Failed to update cast statistics:', error);
+        return {success: false, message: error.message};
     }
 }

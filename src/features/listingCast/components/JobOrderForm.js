@@ -16,7 +16,8 @@ export default function JobOrderForm({areas, onSubmit}) {
     const [formData, setFormData] = useState({
         areaCode: '',
         targetDate: formatDate(new Date(), 'yyyy-MM-dd'),
-        condition: 'girl-list/biz6/typ101-typ102-typ103-typ202-typ203-typ304-typ305-typ306-typ307-typ308'
+        // condition: 'girl-list/biz6/typ101-typ102-typ103-typ202-typ203-typ304-typ305-typ306-typ307-typ308'
+        condition: 'girl-list/biz6/typ102-typ202-typ203-typ306-typ307'
     });
 
     const handleChange = (e) => {

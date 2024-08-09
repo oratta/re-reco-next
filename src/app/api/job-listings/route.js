@@ -19,15 +19,29 @@ export async function POST(request, {params}) {
     }
 }
 
-export async function GET() {
-    try {
-        const jobListings = await prisma.jobListing.findMany({
-            orderBy: { createdAt: 'desc' },
-            take: 5,
-        });
-        return NextResponse.json(jobListings);
-    } catch (error) {
-        consoleError(error, 'Failed to fetch job listings');
-        return NextResponse.json({ error: 'Failed to fetch job listings' }, { status: 500 });
+export async function GET(req, {params}) {
+    const { type = null } = params;
+    if (!type || type === 'latest') {
+        try {
+            const jobListings = await prisma.jobListing.findMany({
+                orderBy: {createdAt: 'desc'},
+                take: 5,
+            });
+            return NextResponse.json(jobListings);
+        } catch (error) {
+            consoleError(error, 'Failed to fetch job listings');
+            return NextResponse.json({error: 'Failed to fetch job listings'}, {status: 500});
+        }
+    } else if (type === 'listing'){
+        try {
+            const jobCastList = await getJobCastList();
+            return new Response(JSON.stringify(jobCastList), { status: 200 });
+        } catch (error) {
+            console.error('Error fetching job cast list:', error);
+            return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+        }
+    } else {
+        return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
     }
+
 }

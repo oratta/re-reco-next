@@ -27,7 +27,7 @@ export function urlToCastData(href){
     };
 }
 
-export async function finishJobReservationRate(cast) {
+export async function finishJobReservationRate(cast, updateInfo = {}) {
     try {
         const jobReRes = await prisma.jobReservationRate.findMany({
             where: {
@@ -58,7 +58,8 @@ export async function finishJobReservationRate(cast) {
                 totalReservationRate: reservedRateSum,
                 recent1ReservationRate,
                 recent5ReservationRate,
-                recent30daysReservationRate
+                recent30daysReservationRate,
+                ...updateInfo
             }
         });
 
@@ -67,4 +68,9 @@ export async function finishJobReservationRate(cast) {
         console.error('Failed to update cast statistics:', error);
         return {success: false, message: error.message};
     }
+}
+
+export function getSumbnailUrl(cast){
+    //https://img.cityheaven.net/img/girls/tt/smc-gotanda/sn_grpb0036197866_0000000000mb.jpg
+    return `https://img.cityheaven.net/img/girls/tt/${cast.groupCode}/sn_grpb00${cast.code}_0000000000mb.jpg`
 }

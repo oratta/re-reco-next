@@ -9,7 +9,15 @@ export default async function runJobReservationRate(jobReRe){
         jobReRe = await JobReservationRate.start(jobReRe)
         // ジョブの実行ロジックをここに記述
         // 例: データのスクレイピング、計算の実行など
-        const {totalCount, reservedCount, emptyCount} = await scrapeReservationRate(jobReRe);
+        const {
+            reservationStatus,
+            castInfo
+        } = await scrapeReservationRate(jobReRe);
+        const {
+            totalCount,
+            reservedCount,
+            emptyCount,
+        } = reservationStatus;
         consoleLog(`total: ${totalCount}, reserved: ${reservedCount}, empty: ${emptyCount}`);
         if(totalCount >0 ){
             jobReRe.reservedRate = reservedCount/totalCount;
@@ -21,10 +29,9 @@ export default async function runJobReservationRate(jobReRe){
         jobReRe.reservedCount = reservedCount;
         jobReRe.emptyCount = emptyCount;
 
-
         // ジョブ完了後、ステータスをcompleted'に更新
         const finishMsg = "Job ReservationRate finished";
-        jobReRe = await JobReservationRate.finish(jobReRe,finishMsg)
+        jobReRe = await JobReservationRate.finish(jobReRe,jobReRe.cast, castInfo, finishMsg)
         consoleLog(`${finishMsg}: ${jobReRe.id}`)
     } catch (error) {
         console.error('Error in background job:', error);

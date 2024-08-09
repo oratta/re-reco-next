@@ -13,7 +13,7 @@ export async function GET(request) {
 
         // データを取得（ページング処理付き）
         const jobReservationRates = await getRunableList(page, pageSize);
-        console.log(jobReservationRates);
+        // console.log(jobReservationRates);
 
         // 総ページ数を計算
         const totalPages = Math.ceil(totalCount / pageSize);

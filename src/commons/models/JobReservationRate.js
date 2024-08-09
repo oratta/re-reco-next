@@ -69,8 +69,7 @@ export async function getRunableListCount() {
     return jobReReList;
 }
 
-export async function finish(jobReRe, msg = "job completely finished") {
-
+export async function finish(jobReRe, cast, castUpdateInfo, msg = "job completely finished") {
     jobReRe = await prisma.jobReservationRate.update({
         where: { id: jobReRe.id },
         data: {
@@ -82,12 +81,9 @@ export async function finish(jobReRe, msg = "job completely finished") {
             reservedRate: jobReRe.reservedRate,
             result: msg
         },
-        include: {
-            cast: true
-        }
     });
 
-    await Cast.finishJobReservationRate(jobReRe.cast);
+    await Cast.finishJobReservationRate(cast, castUpdateInfo);
 
     return jobReRe;
 }

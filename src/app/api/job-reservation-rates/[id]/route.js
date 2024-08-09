@@ -23,33 +23,3 @@ export async function POST(request, { params }) {
         return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
     }
 }
-
-async function startBackgroundJob(id) {
-    // この関数は非同期でジョブを実行します
-    // 実際の実装はプロジェクトの要件に応じて変更してください
-    try {
-        // ジョブの実行ロジックをここに記述
-        // 例: データのスクレイピング、計算の実行など
-
-        // ジョブ完了後、ステータスを'completed'に更新
-        await prisma.jobReservationRate.update({
-            where: { id: id },
-            data: {
-                status: 'completed',
-                completedAt: new Date(),
-                // 他の更新するフィールド（reservedRate, reservedCount など）
-            },
-        });
-    } catch (error) {
-        console.error('Error in background job:', error);
-        // エラー時はステータスを'failed'に更新
-        await prisma.jobReservationRate.update({
-            where: { id: id },
-            data: {
-                status: 'failed',
-                completedAt: new Date(),
-                result: error.message
-            },
-        });
-    }
-}

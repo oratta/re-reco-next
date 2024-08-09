@@ -31,32 +31,37 @@ const JobCastListView = () => {
     };
 
     return (
-        <div>
-            <h1>Job Cast List</h1>
-            <table>
+        <div className="container mx-auto p-4">
+            <h1 className="text-2xl font-bold mb-4">Job Cast List</h1>
+            <table className="min-w-full bg-white border border-gray-200">
                 <thead>
                     <tr>
-                        <th>Area Code</th>
-                        <th>Target Date</th>
-                        <th>Status</th>
-                        <th>Complete Count</th>
-                        <th>Failed Count</th>
-                        <th>Pending Count</th>
-                        <th>Action</th>
+                        <th className="py-2 px-4 border-b">Area Code</th>
+                        <th className="py-2 px-4 border-b">Target Date</th>
+                        <th className="py-2 px-4 border-b">Status</th>
+                        <th className="py-2 px-4 border-b">Complete Count</th>
+                        <th className="py-2 px-4 border-b">Failed Count</th>
+                        <th className="py-2 px-4 border-b">Pending Count</th>
+                        <th className="py-2 px-4 border-b">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {jobCastList.map(job => (
-                        <tr key={job.id}>
-                            <td>{job.areaCode}</td>
-                            <td>{job.targetDate}</td>
-                            <td>{job.status}</td>
-                            <td>{job.completeCount}</td>
-                            <td>{job.failedCount}</td>
-                            <td>{job.pendingCount}</td>
-                            <td>
+                        <tr key={job.id} className="hover:bg-gray-100">
+                            <td className="py-2 px-4 border-b">{job.areaCode}</td>
+                            <td className="py-2 px-4 border-b">{job.targetDate}</td>
+                            <td className="py-2 px-4 border-b">{job.status}</td>
+                            <td className="py-2 px-4 border-b">{job.completeCount}</td>
+                            <td className="py-2 px-4 border-b">{job.failedCount}</td>
+                            <td className="py-2 px-4 border-b">{job.pendingCount}</td>
+                            <td className="py-2 px-4 border-b">
                                 {job.pendingCount > 0 && (
-                                    <button onClick={() => handleBulkExecute(job.id)}>Bulk Execute</button>
+                                    <button
+                                        onClick={() => handleBulkExecute(job.id)}
+                                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    >
+                                        Bulk Execute
+                                    </button>
                                 )}
                             </td>
                         </tr>

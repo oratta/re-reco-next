@@ -4,7 +4,8 @@ export const STATUS = {
     PENDING: 'pending',
     RUNNING: 'running',
     COMPLETED: 'completed',
-    FAILED: 'failed'
+    FAILED: 'failed',
+    ALL_JOB_FINISHED: 'all_job_finished',
 };
 
 export async function saveFailed(id, message) {

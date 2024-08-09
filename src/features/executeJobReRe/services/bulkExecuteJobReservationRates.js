@@ -1,6 +1,8 @@
 import prisma from "@/commons/libs/prisma";
 import runJobReservationRate from "@/features/executeJobReRe/services/runJobReservationRate";
 import * as JobReservationRate from "@/commons/models/JobReservationRate";
+import * as JobListing from "@/commons/models/JobListing";
+import {consoleLog} from "@/commons/utils/log";
 
 export async function bulkExecuteJobReservationRates(jobListingId) {
     const jobReservationRates = await prisma.jobReservationRate.findMany({
@@ -10,12 +12,18 @@ export async function bulkExecuteJobReservationRates(jobListingId) {
         }
     });
 
-    // Execute each pending job reservation rate asynchronously
-    await Promise.all(jobReservationRates.map(async (jobReRe) => {
-        // Simulate asynchronous execution
-        await runJobReservationRate(jobReRe);
-        await new Promise(resolve => setTimeout(resolve, 5000)); // 5-second delay
-    }));
+    // Execute each pending job reservation rate asynchronously with a 5-second delay
+    const jobReReCount = jobReservationRates.length;
+    let jobCount = 0;
+    for (const jobReRe of jobReservationRates) {
+        if(jobReRe.status === JobReservationRate.STATUS.PENDING) {
+            consoleLog(`Job ReservationRate ${jobCount}/${jobReReCount} started: ${jobReRe.id}`);
+            await runJobReservationRate(jobReRe);
+            await new Promise(resolve => setTimeout(resolve, 5000)); // 5-second
+            jobCount++;
+            consoleLog(`Job ReservationRate ${jobCount}/${jobReReCount} finished: ${jobReRe.id}`);
+        }
+    }
 
     // Update the job listing status if all job reservation rates are complete or failed
     const updatedJobReservationRates = await prisma.jobReservationRate.findMany({
@@ -26,18 +34,9 @@ export async function bulkExecuteJobReservationRates(jobListingId) {
 
     const allCompletedOrFailed = updatedJobReservationRates.every(jobReRe => jobReRe.status === 'complete' || jobReRe.status === 'failed');
     if (allCompletedOrFailed) {
-        await prisma.jobListing.update({
-            where: { id: jobListingId },
-            data: { status: 'complete' }
-        });
+        // Notify the client via SSE
+        if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
+            globalThis.sseClients[jobListingId]({ status: JobListing.STATUS.ALL_JOB_FINISHED });
+        }
     }
-}
-
-async function executeJobReservationRate(rateId) {
-    // Simulate the execution of a job reservation rate
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await prisma.jobReservationRate.update({
-        where: { id: rateId },
-        data: { status: 'complete' } // or 'failed' based on the execution result
-    });
 }

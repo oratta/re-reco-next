@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 const JobCastListView = () => {
     const [jobCastList, setJobCastList] = useState([]);
+    const [jobStatus, setJobStatus] = useState({});
 
     useEffect(() => {
         fetchJobCastList();
@@ -21,6 +22,12 @@ const JobCastListView = () => {
 
     const handleBulkExecute = async (jobListingId) => {
         try {
+            const eventSource = new EventSource(`/api/job-listings/${jobListingId}/bulk-execute`);
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                setJobStatus(prevStatus => ({ ...prevStatus, [jobListingId]: data.status }));
+            };
+
             await fetch(`/api/job-listings/${jobListingId}/bulk-execute`, {
                 method: 'POST'
             });
@@ -35,37 +42,37 @@ const JobCastListView = () => {
             <h1 className="text-2xl font-bold mb-4">Job Cast List</h1>
             <table className="min-w-full bg-white border border-gray-200">
                 <thead>
-                    <tr>
-                        <th className="py-2 px-4 border-b">Area Code</th>
-                        <th className="py-2 px-4 border-b">Target Date</th>
-                        <th className="py-2 px-4 border-b">Status</th>
-                        <th className="py-2 px-4 border-b">Complete Count</th>
-                        <th className="py-2 px-4 border-b">Failed Count</th>
-                        <th className="py-2 px-4 border-b">Pending Count</th>
-                        <th className="py-2 px-4 border-b">Action</th>
-                    </tr>
+                <tr>
+                    <th className="py-2 px-4 border-b">Area Code</th>
+                    <th className="py-2 px-4 border-b">Target Date</th>
+                    <th className="py-2 px-4 border-b">Status</th>
+                    <th className="py-2 px-4 border-b">Complete Count</th>
+                    <th className="py-2 px-4 border-b">Failed Count</th>
+                    <th className="py-2 px-4 border-b">Pending Count</th>
+                    <th className="py-2 px-4 border-b">Action</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {jobCastList.map(job => (
-                        <tr key={job.id} className="hover:bg-gray-100">
-                            <td className="py-2 px-4 border-b">{job.areaCode}</td>
-                            <td className="py-2 px-4 border-b">{job.targetDate}</td>
-                            <td className="py-2 px-4 border-b">{job.status}</td>
-                            <td className="py-2 px-4 border-b">{job.completeCount}</td>
-                            <td className="py-2 px-4 border-b">{job.failedCount}</td>
-                            <td className="py-2 px-4 border-b">{job.pendingCount}</td>
-                            <td className="py-2 px-4 border-b">
-                                {job.pendingCount > 0 && (
-                                    <button
-                                        onClick={() => handleBulkExecute(job.id)}
-                                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                    >
-                                        Bulk Execute
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
+                {jobCastList.map(job => (
+                    <tr key={job.id} className="hover:bg-gray-100">
+                        <td className="py-2 px-4 border-b">{job.areaCode}</td>
+                        <td className="py-2 px-4 border-b">{job.targetDate}</td>
+                        <td className="py-2 px-4 border-b">{jobStatus[job.id] || job.status}</td>
+                        <td className="py-2 px-4 border-b">{job.completeCount}</td>
+                        <td className="py-2 px-4 border-b">{job.failedCount}</td>
+                        <td className="py-2 px-4 border-b">{job.pendingCount}</td>
+                        <td className="py-2 px-4 border-b">
+                            {job.pendingCount > 0 && (
+                                <button
+                                    onClick={() => handleBulkExecute(job.id)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                >
+                                    Bulk Execute
+                                </button>
+                            )}
+                        </td>
+                    </tr>
+                ))}
                 </tbody>
             </table>
         </div>

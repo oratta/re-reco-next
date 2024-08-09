@@ -1,40 +1,47 @@
-import {consoleError, consoleLog} from "@/commons/utils/log";
-import {chromium} from "playwright";
-import {getReservationUrl} from "@/features/listingCast/services/actions/domHeaven.v1";
+import { chromium } from "playwright";
+import { consoleError, consoleLog } from "@/commons/utils/log";
+import { getReservationUrl } from "@/features/listingCast/services/actions/domHeaven.v1";
 import * as cheerio from "cheerio";
 
 export async function scrapeReservationRate(jobReRe) {
     let browser;
-    try{
+    try {
         const url = getUrl(jobReRe);
-        browser = await chromium.launch({headless: false});
-        const page = await browser.newPage();
+        browser = await chromium.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        });
+        const context = await browser.newContext({
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        });
+        const page = await context.newPage();
 
-        // ページに移動
+        // Set a longer timeout
+        page.setDefaultTimeout(90000);  // Increased timeout to 90 seconds
+
+        // Navigate to the page
         consoleLog(`Navigating to ${url}...`);
-        await page.goto(url, { waitUntil: 'networkidle' });
+        await page.goto(url, { waitUntil: 'networkidle', timeout: 90000 });
         await page.waitForLoadState('domcontentloaded');
 
-        // iframeを見つけて、そのコンテンツにアクセス
+        // Wait for iframe to be available
         consoleLog('Waiting for iframe...');
-        const frame = await page.frameLocator('iframe[name="pcreserveiframe"]').first();
+        await page.waitForSelector('iframe[name="pcreserveiframe"]', { state: 'attached', timeout: 60000 });
 
-        // consoleLog('Waiting for iframe content to load...');
-        // await frame.waitForLoadState('domcontentloaded', { timeout: 60000 });
+        // Get all frames
+        const frames = page.frames();
+        consoleLog(`Found ${frames.length} frames`);
 
+        // Find the correct frame
+        const frame = frames.find(f => f.name() === 'pcreserveiframe');
         if (!frame) {
             throw new Error('Iframe not found');
         }
 
         consoleLog('Checking if table exists');
-        const tableExists = await frame.locator('#chart > div > table').count() > 0;
-        if (!tableExists) {
-            consoleLog('Table not found, dumping page content');
-            const pageContent = await page.content();
-            console.log(pageContent);
-            throw new Error('Table not found in the iframe');
-        }
-        const tableHtml = await frame.locator('#chart > div > table').innerHTML();
+        await frame.waitForSelector('#chart > div > table', { state: 'attached', timeout: 60000 });
+
+        const tableHtml = await frame.$eval('#chart > div > table', (table) => table.outerHTML);
         const $ = cheerio.load(tableHtml, {
             xml: {
                 xmlMode: true,
@@ -44,19 +51,16 @@ export async function scrapeReservationRate(jobReRe) {
         const reservationStatus = await scrapeReservationStatus($);
 
         let castInfo = {};
-        if(jobReRe.cast){
-            if(jobReRe.cast.name){
+        if (jobReRe.cast) {
+            if (jobReRe.cast.name) {
                 consoleLog('Cast name already exists');
                 consoleLog(jobReRe.cast);
-            }
-            else {
-                //body > div.wrapper > div > div > section > div.booking-wrap > div:nth-child(6) > div.radius-box.radius-box_img > table > tbody > tr:nth-child(1) > td.first > a > img
+            } else {
                 const size = await frame.locator('body > div.wrapper > div > div > section > div.booking-wrap > div:nth-child(6) > div.radius-box.radius-box_img > table > tbody > tr:nth-child(2) > td > span').textContent();
                 const baseInfo = await frame.locator('body > div.wrapper > div > div > section > div.booking-wrap > div:nth-child(6) > div.radius-box.radius-box_img > table > tbody > tr:nth-child(1) > td.second > a > strong').textContent();
                 castInfo = parseInfo(baseInfo, size);
             }
-        }
-        else {
+        } else {
             throw new Error('Cast not found');
         }
 
@@ -65,21 +69,21 @@ export async function scrapeReservationRate(jobReRe) {
             castInfo
         }
 
-    } catch(error){
+    } catch (error) {
         consoleError(error, "Failed to scrape reservation rate");
         throw error;
-    } finally{
-        if(browser){
+    } finally {
+        if (browser) {
             await browser.close();
         }
     }
 }
 
-function getUrl(jobReRe){
+function getUrl(jobReRe) {
     return getReservationUrl(jobReRe.cast);
 }
 
-async function scrapeReservationStatus($){
+async function scrapeReservationStatus($) {
     let dashCount = 0;
     let telCount = 0;
     let circleCount = 0;
@@ -89,7 +93,6 @@ async function scrapeReservationStatus($){
         const cellText = $(cell).text().trim();
         const rowspan = parseInt($(cell).attr('rowspan')) || 1;
 
-        // rowspan-single属性がある場合は1としてカウント
         const count = rowspan ? 1 : rowspan;
 
         if (cellText === '‐') {
@@ -103,9 +106,8 @@ async function scrapeReservationStatus($){
         }
     });
 
-    //telは予約の有無が判断できないので除外
     return {
-        totalCount: circleCount+otherCount,
+        totalCount: circleCount + otherCount,
         reservedCount: otherCount,
         emptyCount: circleCount
     };
@@ -114,11 +116,9 @@ async function scrapeReservationStatus($){
 function parseInfo(baseInfo, size) {
     let regex = /(.+?)（(\d+)歳）/;
     let match = baseInfo.match(regex);
-    let result = {
-    };
+    let result = {};
     if (match) {
         const [_, name, age] = match;
-
         result.name = name;
         result.age = parseInt(age, 10);
     } else {

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from "@/commons/libs/prisma";
 import {consoleError} from "@/commons/utils/log";
 import * as JobReservationRate from "@/commons/models/JobReservationRate";
-import runJobReservationRate from "@/features/listingCast/services/runJobReservationRate";
+import runJobReservationRate from "@/features/executeJobReRe/services/runJobReservationRate";
 
 
 export async function POST(request, { params }) {

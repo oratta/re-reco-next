@@ -4,7 +4,7 @@ import {MAX_CAST_LIST_SIZE} from "@/configs/appSetting";
 import * as cheerio from 'cheerio';
 import * as Cast from "@/commons/models/Cast";
 import {consoleError, consoleLog} from "@/commons/utils/log";
-import {getCastList, getListSize, getPagingList} from "@/features/listingCast/services/actions/domHeaven.v1";
+import {getCastList, getListSize, getPagingList} from "@/commons/libs/domHeaven.v1";
 import {formatDate} from "date-fns";
 import {getQuery} from "@/commons/utils/cheerioUtil";
 

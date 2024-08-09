@@ -44,7 +44,7 @@ export default function JobOrderView() {
     }, [jobListings]);
 
     const fetchJobListings = async () => {
-        const updatedJobListings =  await fetchApiForce('/api/job-listings');
+        const updatedJobListings =  await fetchApiForce('/api/job-listings?type=latest');
         setJobListings(updatedJobListings);
     }
 

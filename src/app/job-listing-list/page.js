@@ -1,4 +1,5 @@
-// src/app/job-listing-list/page.js
+'use client';
+
 import React, { useEffect, useState } from 'react';
 
 const JobCastListView = () => {
@@ -10,7 +11,7 @@ const JobCastListView = () => {
 
     const fetchJobCastList = async () => {
         try {
-            const response = await fetch('/api/job-cast-list');
+            const response = await fetch('/api/job-listings?type=listing');
             const data = await response.json();
             setJobCastList(data);
         } catch (error) {
@@ -20,7 +21,7 @@ const JobCastListView = () => {
 
     const handleBulkExecute = async (jobListingId) => {
         try {
-            await fetch(`/api/job-cast-list/${jobListingId}/bulk-execute`, {
+            await fetch(`/api/job-listings/${jobListingId}/bulk-execute`, {
                 method: 'POST'
             });
             fetchJobCastList(); // Refresh the list after bulk execution

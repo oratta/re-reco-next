@@ -1,5 +1,5 @@
 // src/services/jobCastService.js
-import prisma from '@/libs/prisma';
+import prisma from "@/commons/libs/prisma";
 
 export async function getJobCastListForAction() {
     const jobListings = await prisma.jobListing.findMany({

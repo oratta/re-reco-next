@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/commons/libs/prisma';
 import createAndRunJobList from "@/features/listingCast/services/createAndRunJobListing";
 import {consoleError} from "@/commons/utils/log";
+import {getJobCastListForAction} from "@/features/executeJobReRe/services/getJobCastListForAction";
 
 export async function POST(request, {params}) {
     console.log("request post api/job-listings");
@@ -19,8 +20,10 @@ export async function POST(request, {params}) {
     }
 }
 
-export async function GET(req, {params}) {
-    const { type = null } = params;
+export async function GET(req) {
+    const url = new URL(req.url);
+    const type = url.searchParams.get('type') || 'latest';
+
     if (!type || type === 'latest') {
         try {
             const jobListings = await prisma.jobListing.findMany({
@@ -34,7 +37,7 @@ export async function GET(req, {params}) {
         }
     } else if (type === 'listing'){
         try {
-            const jobCastList = await getJobCastList();
+            const jobCastList = await getJobCastListForAction();
             return new Response(JSON.stringify(jobCastList), { status: 200 });
         } catch (error) {
             console.error('Error fetching job cast list:', error);

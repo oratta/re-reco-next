@@ -55,6 +55,11 @@ export default function RootLayout({children}) {
                     ReReLi
                 </Link>
             </li>
+            <li className="block px-4 py-2 my-1 hover:bg-gray-700 rounded">
+                <Link className="no-underline text-blue-300" href="/job-listing-list?type=listing">
+                    LiLi
+                </Link>
+            </li>
         </ul>
         <div className="ml-2">
             {children}

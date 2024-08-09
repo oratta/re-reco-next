@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 import { consoleError, consoleLog } from "@/commons/utils/log";
-import { getReservationUrl } from "@/features/listingCast/services/actions/domHeaven.v1";
+import { getReservationUrl } from "@/commons/libs/domHeaven.v1";
 import * as cheerio from "cheerio";
 
 export async function scrapeReservationRate(jobReRe) {

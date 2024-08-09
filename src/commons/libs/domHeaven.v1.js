@@ -39,7 +39,6 @@ export function getReservationUrl(cast){
         consoleError(e,cast);
         throw e;
     }
-
     const url = `https://www.cityheaven.net/${cast.areaCode}/${cast.groupCode}/A6ShopReservation/?girl_id=${cast.code}`;
     consoleLog(`scrapingUrl: ${url}`);
     return url;

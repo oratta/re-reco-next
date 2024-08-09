@@ -1,5 +1,5 @@
 // src/app/api/job-cast-list/[id]/bulk-execute/route.js
-import { bulkExecuteJobReservationRates } from '@/services/jobCastService';
+import { bulkExecuteJobReservationRates } from "@/features/executeJobReRe/services/bulkExecuteJobReservationRates";
 
 export async function POST(req, { params }) {
     const { id } = params;

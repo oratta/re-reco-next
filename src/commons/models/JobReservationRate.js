@@ -1,6 +1,13 @@
 import prisma from "@/commons/libs/prisma";
 import * as Cast from "@/commons/models/Cast";
 
+export const STATUS = {
+    PENDING: 'pending',
+    PROCESSING: 'processing',
+    COMPLETED: 'completed',
+    FAILED: 'failed'
+};
+
 export async function start(jobReRe){
     const jobReservationRate =  await prisma.jobReservationRate.update({
         where: { id: jobReRe.id },
@@ -92,7 +99,7 @@ export async function failed(jobReRe, msg="job failed"){
     const result = await prisma.jobReservationRate.update({
         where: { id: jobReRe.id },
         data: {
-            status: 'failed',
+            status: STATUS.FAILED,
             completedAt: new Date(),
             result: msg
         },

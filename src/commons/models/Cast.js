@@ -1,6 +1,7 @@
 import prisma from '../libs/prisma';
 import {URL_BASE_CAST_LIST} from "@/configs/appConst";
 import {consoleLog} from "@/commons/utils/log";
+import * as JobResaervationRate from "@/commons/models/JobReservationRate";
 
 export function urlToCastData(href){
     //[0]https:/[1]/[2]www.cityheaven.net/[3]tokyo/[4]A1304/[5]A130401/[6]blendatokyo-s/[7]A6ShopReservation/[8]?girl_id=54263599
@@ -32,7 +33,7 @@ export async function finishJobReservationRate(cast, updateInfo = {}) {
         const jobReRes = await prisma.jobReservationRate.findMany({
             where: {
                 castCode: cast.code,
-                status: 'completed',
+                status: JobResaervationRate.STATUS.COMPLETED,
             },
             orderBy: {createdAt: 'desc'},
         });
@@ -59,6 +60,7 @@ export async function finishJobReservationRate(cast, updateInfo = {}) {
                 recent1ReservationRate,
                 recent5ReservationRate,
                 recent30daysReservationRate,
+                jobCount: jobReRes.length,
                 ...updateInfo
             }
         });

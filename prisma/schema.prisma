@@ -25,6 +25,7 @@ model Cast {
   recent1ReservationRate      Float
   recent5ReservationRate      Float
   recent30daysReservationRate Float
+  jobCount                    Int                @default(0)
   reservationUrl              String
   createdAt                   DateTime             @default(now())
   updatedAt                   DateTime             @updatedAt
@@ -42,6 +43,7 @@ model Group {
   recent1ReservationRate      Float
   recent5ReservationRate      Float
   recent30daysReservationRate Float
+  jobCount                    Int     @default(0)
   reservationListUrl          String
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt

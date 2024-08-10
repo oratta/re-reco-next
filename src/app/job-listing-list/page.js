@@ -7,10 +7,13 @@ import * as JobListing from "@/commons/models/JobListing";
 const JobCastListView = () => {
     const [jobCastList, setJobCastList] = useState([]);
     const [jobStatus, setJobStatus] = useState({});
-    const {processingJobId, setProcessingJobId} = useContext(JobProcessingContext);
+    const { processingJobId, setProcessingJobId } = useContext(JobProcessingContext);
 
     useEffect(() => {
         fetchJobCastList();
+        if (processingJobId) {
+            reestablishSSEConnection(processingJobId);
+        }
     }, []);
 
     const fetchJobCastList = async () => {
@@ -23,22 +26,25 @@ const JobCastListView = () => {
         }
     };
 
+    const reestablishSSEConnection = (jobListingId) => {
+        const eventSource = new EventSource(`/api/job-listings/${jobListingId}/bulk-execute`);
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            setJobStatus(prevStatus => ({ ...prevStatus, [jobListingId]: data.status || prevStatus[jobListingId] }));
+            if (data.pendingCount !== undefined) {
+                setJobCastList(prevList => prevList.map(job => job.id === jobListingId ? { ...job, pendingCount: data.pendingCount } : job));
+            }
+            if (data.status === JobListing.STATUS.ALL_JOB_FINISHED) {
+                setProcessingJobId(null);
+                eventSource.close();
+            }
+        };
+    };
+
     const handleBulkExecute = async (jobListingId) => {
         setProcessingJobId(jobListingId);
+        reestablishSSEConnection(jobListingId);
         try {
-            const eventSource = new EventSource(`/api/job-listings/${jobListingId}/bulk-execute`);
-            eventSource.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                setJobStatus(prevStatus => ({ ...prevStatus, [jobListingId]: data.status || prevStatus[jobListingId] }));
-                if (data.pendingCount !== undefined) {
-                    setJobCastList(prevList => prevList.map(job => job.id === jobListingId ? { ...job, pendingCount: data.pendingCount } : job));
-                }
-                if (data.status === JobListing.STATUS.ALL_JOB_FINISHED) {
-                    setProcessingJobId(null);
-                    eventSource.close();
-                }
-            };
-
             await fetch(`/api/job-listings/${jobListingId}/bulk-execute`, {
                 method: 'POST'
             });

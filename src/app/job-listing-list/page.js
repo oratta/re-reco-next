@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
+import JobProcessingContext from '@/commons/contexts/JobProcessingContext';
 import * as JobListing from "@/commons/models/JobListing";
 
 const JobCastListView = () => {
     const [jobCastList, setJobCastList] = useState([]);
     const [jobStatus, setJobStatus] = useState({});
-    const [processingJobId, setProcessingJobId] = useState(null);
+    const {processingJobId, setProcessingJobId} = useContext(JobProcessingContext);
 
     useEffect(() => {
         fetchJobCastList();

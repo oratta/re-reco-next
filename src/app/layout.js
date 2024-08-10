@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import '@/styles/globals.css';
 import {Inconsolata} from 'next/font/google';
+import ContentProvider from "@/commons/components/elements/ContentProvider";
 
 const font = Inconsolata({subsets: ['latin']});
 
@@ -14,6 +15,7 @@ export default function RootLayout({children}) {
     return(
         <html lang="ja">
         <body className={font.className}>
+        <ContentProvider>
         <h1 className="text-4xl text-gray-800 font-bold my-2">
             <div className="flex">
                 <div className="">
@@ -64,6 +66,7 @@ export default function RootLayout({children}) {
         <div className="ml-2">
             {children}
         </div>
+        </ContentProvider>
         </body>
         </html>
     );

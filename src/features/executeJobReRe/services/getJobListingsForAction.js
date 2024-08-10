@@ -3,6 +3,7 @@ import * as JobListing from "@/commons/models/JobListing";
 
 export async function getJobListingsForAction() {
     const jobListings = await prisma.jobListing.findMany({
+        orderBy: {createdAt: 'desc'},
         include: {
             jobReservationRates: true
         }

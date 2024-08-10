@@ -12,6 +12,7 @@ export default function JobOrderForm({areas, onSubmit}) {
     today.setHours(0, 0, 0, 0);
     const maxDate = new Date(today);
     maxDate.setDate(today.getDate() + DATE_RANGE_DAYS);
+    areas = Object.values(areas);
 
     const [formData, setFormData] = useState({
         areaCode: '',

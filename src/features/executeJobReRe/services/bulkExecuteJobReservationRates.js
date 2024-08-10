@@ -15,13 +15,18 @@ export async function bulkExecuteJobReservationRates(jobListingId) {
     // Execute each pending job reservation rate asynchronously with a 5-second delay
     const jobReReCount = jobReservationRates.length;
     let jobCount = 0;
+    let pendingCount = jobReReCount;
     for (const jobReRe of jobReservationRates) {
         if(jobReRe.status === JobReservationRate.STATUS.PENDING) {
             consoleLog(`Job ReservationRate ${jobCount}/${jobReReCount} started: ${jobReRe.id}`);
             await runJobReservationRate(jobReRe);
             await new Promise(resolve => setTimeout(resolve, 5000)); // 5-second
             jobCount++;
+            pendingCount--;
             consoleLog(`Job ReservationRate ${jobCount}/${jobReReCount} finished: ${jobReRe.id}`);
+            if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
+                globalThis.sseClients[jobListingId]({ pendingCount });
+            }
         }
     }
 

@@ -31,3 +31,13 @@ body {
     text-wrap: balance;
   }
 }
+
+@keyframes blink {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s linear infinite;
+}

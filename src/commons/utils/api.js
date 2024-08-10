@@ -17,9 +17,14 @@ export async function fetchApi(url, method = "GET", data = null, force = false, 
         options.body = JSON.stringify(data);
     }
 
-    const response = await fetch(url, options);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch ${url}, via ${method}: ${response.statusText}`);
+    let response = null;
+    try{
+        response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch ${url}, via ${method}: ${response.statusText}`);
+        }
+    } catch (error) {
+        throw new Error(`Failed to fetch ${url}, via ${method}: ${error.message}`);
     }
 
     const responseData = await response.json();

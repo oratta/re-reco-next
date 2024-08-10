@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import JobProcessingContext from '@/commons/contexts/JobProcessingContext';
 import * as JobListing from "@/commons/models/JobListing";
 
@@ -34,7 +34,7 @@ const JobCastListView = () => {
             if (data.pendingCount !== undefined) {
                 setJobCastList(prevList => prevList.map(job => job.id === jobListingId ? { ...job, pendingCount: data.pendingCount } : job));
             }
-            if (data.status === JobListing.STATUS.ALL_JOB_FINISHED) {
+            if (data.status === JobListing.STATUS.ALL_JOB_FINISHED || data.status === 'stopped') {
                 setProcessingJobId(null);
                 eventSource.close();
             }
@@ -52,6 +52,17 @@ const JobCastListView = () => {
         } catch (error) {
             console.error('Error executing bulk job reservation rates:', error);
             setProcessingJobId(null);
+        }
+    };
+
+    const handleStopExecute = async (jobListingId) => {
+        try {
+            await fetch(`/api/job-listings/${jobListingId}/bulk-execute`, {
+                method: 'DELETE'
+            });
+            setProcessingJobId(null);
+        } catch (error) {
+            console.error('Error stopping bulk job reservation rates:', error);
         }
     };
 
@@ -83,13 +94,23 @@ const JobCastListView = () => {
                             {job.pendingCount === 0 ? (
                                 <button className="bg-gray-500 text-white px-4 py-2 rounded" disabled>Finished</button>
                             ) : (
-                                <button
-                                    onClick={() => handleBulkExecute(job.id)}
-                                    className={`px-4 py-2 rounded ${processingJobId === job.id ? 'bg-yellow-500 text-white animate-blink' : 'bg-blue-500 text-white hover:bg-blue-700'}`}
-                                    disabled={processingJobId !== null && processingJobId !== job.id}
-                                >
-                                    {processingJobId === job.id ? 'Processing' : 'Bulk Execute'}
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => handleBulkExecute(job.id)}
+                                        className={`px-4 py-2 rounded ${processingJobId === job.id ? 'bg-yellow-500 text-white animate-blink' : 'bg-blue-500 text-white hover:bg-blue-700'}`}
+                                        disabled={processingJobId !== null && processingJobId !== job.id}
+                                    >
+                                        {processingJobId === job.id ? 'Processing' : 'Bulk Execute'}
+                                    </button>
+                                    {processingJobId === job.id && (
+                                        <button
+                                            onClick={() => handleStopExecute(job.id)}
+                                            className="ml-2 px-4 py-2 rounded bg-red-500 text-white hover:bg-red-700"
+                                        >
+                                            Stop
+                                        </button>
+                                    )}
+                                </>
                             )}
                         </td>
                     </tr>

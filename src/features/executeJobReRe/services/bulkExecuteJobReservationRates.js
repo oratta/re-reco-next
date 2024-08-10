@@ -4,7 +4,10 @@ import * as JobReservationRate from "@/commons/models/JobReservationRate";
 import * as JobListing from "@/commons/models/JobListing";
 import {consoleLog} from "@/commons/utils/log";
 
+const stopExecutionMap = new Map();
+
 export async function bulkExecuteJobReservationRates(jobListingId) {
+    stopExecutionMap.set(jobListingId, false);
     const jobReservationRates = await prisma.jobReservationRate.findMany({
         where: {
             jobListingId,
@@ -18,6 +21,10 @@ export async function bulkExecuteJobReservationRates(jobListingId) {
     let pendingCount = jobReReCount;
     for (const jobReRe of jobReservationRates) {
         if(jobReRe.status === JobReservationRate.STATUS.PENDING) {
+            if (stopExecutionMap.get(jobListingId)){
+                consoleLog(`Job ReservationRate ${jobCount}/${jobReReCount} stopped: ${jobReRe.id}`);
+                break;
+            }
             consoleLog(`Job ReservationRate ${jobCount}/${jobReReCount} started: ${jobReRe.id}`);
             await runJobReservationRate(jobReRe);
             await new Promise(resolve => setTimeout(resolve, 5000)); // 5-second
@@ -30,18 +37,17 @@ export async function bulkExecuteJobReservationRates(jobListingId) {
         }
     }
 
-    // Update the job listing status if all job reservation rates are complete or failed
-    const updatedJobReservationRates = await prisma.jobReservationRate.findMany({
-        where: {
-            jobListingId
-        }
-    });
-
-    const allCompletedOrFailed = updatedJobReservationRates.every(jobReRe => jobReRe.status === 'complete' || jobReRe.status === 'failed');
-    if (allCompletedOrFailed) {
+    if (pendingCount <= 0) {
         // Notify the client via SSE
         if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
             globalThis.sseClients[jobListingId]({ status: JobListing.STATUS.ALL_JOB_FINISHED });
         }
+    }
+}
+
+export async function stopBulkExecuteJobReservationRates(jobListingId) {
+    stopExecutionMap.set(jobListingId, true);
+    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
+        globalThis.sseClients[jobListingId]({ status: JobListing.STATUS.ALL_JOB_STOPPED });
     }
 }

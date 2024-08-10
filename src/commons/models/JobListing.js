@@ -5,7 +5,9 @@ export const STATUS = {
     RUNNING: 'running',
     COMPLETED: 'completed',
     FAILED: 'failed',
+    //ここから下はDBには保存しないが、クライアントへの通知用
     ALL_JOB_FINISHED: 'all_job_finished',
+    ALL_JOB_STOPPED: 'all_job_stopped'
 };
 
 export async function saveFailed(id, message) {

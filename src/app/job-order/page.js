@@ -5,6 +5,7 @@ import JobOrderForm from '@/features/listingCast/components/JobOrderForm';
 import JobListingList from '@/features/listingCast/components/JobListingList';
 import JobListingDetail from '@/features/listingCast/components/JobListingDetail';
 import {fetchApi, fetchApiForce} from "@/commons/utils/api";
+import JobListingForExec from "@/features/listingCast/components/JobListingForExec";
 
 export default function JobOrderView() {
     const [jobListings, setJobListings] = useState([]);
@@ -52,9 +53,15 @@ export default function JobOrderView() {
         <div className="space-y-6">
             <h1 className="text-3xl font-bold">Job Order</h1>
             <JobOrderForm areas={areas} onSubmit={fetchJobListings} />
+            <div className="w-full">
+                <JobListingForExec
+                    areas={areas}
+                    jobListings={jobListings}
+                />
+            </div>
             <div className="flex space-x-4">
                 <div className="w-1/2">
-                    <JobListingList
+                <JobListingList
                         jobListings={jobListings}
                         onSelectJobListing={setSelectedJobListing}
                         areas={areas}

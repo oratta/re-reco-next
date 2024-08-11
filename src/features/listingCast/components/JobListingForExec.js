@@ -1,4 +1,4 @@
-import { FaPlay, FaStop, FaCheck } from 'react-icons/fa';
+import {FaCheck, FaPlay, FaStop} from 'react-icons/fa';
 
 const JobListingForExec = ({ areas, jobListings, jobStatus, processingJobId, onStop, onExecute }) => {
     return (
@@ -28,16 +28,17 @@ const JobListingForExec = ({ areas, jobListings, jobStatus, processingJobId, onS
                                     onClick={() => onExecute(job.id)}
                                     className={`px-4 py-2 rounded ${processingJobId === job.id ? 'bg-yellow-500 text-white animate-blink' : 'bg-blue-500 text-white hover:bg-blue-700'}`}
                                     disabled={processingJobId !== null && processingJobId !== job.id}
-                                    style={{ backgroundColor: processingJobId !== null && processingJobId !== job.id ? 'gray' : '' }}
+                                    style={{backgroundColor: processingJobId !== null && processingJobId !== job.id ? 'gray' : 'orange'}}
                                 >
                                     <FaPlay color="white" />
                                 </button>
                                 {processingJobId === job.id && (
                                     <button
                                         onClick={() => onStop(job.id)}
-                                        className="ml-2 px-4 py-2 rounded bg-red-500 text-white hover:bg-red-700"
+                                        className="ml-2 px-4 py-2 rounded text-white hover:bg-red-700 bg-red-500"
+                                        style={{backgroundColor: 'red'}}
                                     >
-                                        <FaStop />
+                                        <FaStop color="white"/>
                                     </button>
                                 )}
                             </>

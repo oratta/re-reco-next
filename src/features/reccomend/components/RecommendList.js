@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState} from 'react';
 
 export default function RecommendList({ data, category, onLoadMore, hasMore }) {
     const [selectedTab, setSelectedTab] = useState('Recent');

@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import CategoryTab from './CategoryTab';
-import ConditionSelectForm from './ConditionSelectForm';
-import RecommendList from './RecommendList';
-import JobListingSelect from './JobListingSelect';
-import { fetchApi} from '@/commons/utils/api';
+import {useEffect, useState} from 'react';
+import CategoryTab from '../../features/reccomend/components/CategoryTab';
+import ConditionSelectForm from '../../features/reccomend/components/ConditionSelectForm';
+import RecommendList from '../../features/reccomend/components/RecommendList';
+import JobListingSelect from '../../features/reccomend/components/JobListingSelect';
+import {fetchApi} from '@/commons/utils/api';
 
 export default function RecommendView() {
     const [selectedCategory, setSelectedCategory] = useState('Group');
@@ -18,14 +18,12 @@ export default function RecommendView() {
 
     useEffect(() => {
         const fetchInitialData = async () => {
-            const areasData = await fetchApi('/api/areas');
-            setAreas(areasData);
-            const groupsData = await fetchApi('/api/groups');
-            setGroups(groupsData);
-            const jobListingsData = await fetchApi('/api/job-listings');
-            setJobListings(jobListingsData);
+            setAreas(await fetchApi('/api/areas'));
+            setGroups(await fetchApi('/api/groups'));
+            setJobListings(await fetchApi('/api/job-listings'));
         };
         fetchInitialData();
+
     }, []);
 
     const handleCategoryChange = (category) => {
@@ -37,23 +35,24 @@ export default function RecommendView() {
 
     const handleConditionSubmit = async (condition) => {
         setSelectedCondition(condition);
-        // TODO: API呼び出しを実装してrecommendDataを更新
-        // この例では、ダミーデータを使用します
-        const dummyData = [
-            { id: '1', name: 'Item 1', totalReservationRate: 0.8, recent1ReservationRate: 0.9, recent5ReservationRate: 0.85, recent30daysReservationRate: 0.82 },
-            { id: '2', name: 'Item 2', totalReservationRate: 0.7, recent1ReservationRate: 0.8, recent5ReservationRate: 0.75, recent30daysReservationRate: 0.72 },
-        ];
-        setRecommendData(dummyData);
+        const params = new URLSearchParams();
+        params.append("mode", selectedCategory.toLowerCase());  // Group=>group, Cast=>cast
+        if (condition.area) {
+            params.append("areaCode", condition.area);
+        }
+        if (condition.group) {
+            params.append("groupCode", condition.group.code);
+        }
+
+        const data = await fetchApi('/api/casts?' + params.toString());
+        setRecommendData(data);
         setCurrentPage(1);
     };
 
     const loadMoreData = async () => {
         // TODO: API呼び出しを実装して追加のデータをロード
         // この例では、ダミーデータを追加します
-        const moreData = [
-            { id: '3', name: 'Item 3', totalReservationRate: 0.75, recent1ReservationRate: 0.85, recent5ReservationRate: 0.8, recent30daysReservationRate: 0.77 },
-            { id: '4', name: 'Item 4', totalReservationRate: 0.65, recent1ReservationRate: 0.7, recent5ReservationRate: 0.68, recent30daysReservationRate: 0.67 },
-        ];
+        const moreData = await fetchApi(`/api/casts?page=${currentPage + 1}`);
         setRecommendData(prevData => [...prevData, ...moreData]);
         setCurrentPage(prevPage => prevPage + 1);
     };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import {useEffect, useState} from 'react';
 
 export default function ConditionSelectForm({ category, areas, groups, onSubmit }) {
     const [selectedArea, setSelectedArea] = useState('');

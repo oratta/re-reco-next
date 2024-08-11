@@ -1,5 +1,5 @@
 export default function CategoryTab({ selectedCategory, onCategoryChange }) {
-    const categories = ['Group', 'Cast', 'Job_Listing'];
+    const categories = ['Cast', 'Group', 'Job_Listing'];
 
     return (
         <div className="flex space-x-4">

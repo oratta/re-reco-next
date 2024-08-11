@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState} from 'react';
 
 export default function JobListingSelect({ jobListings, onSubmit }) {
     const [selectedJobListing, setSelectedJobListing] = useState('');

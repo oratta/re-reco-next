@@ -1,9 +1,10 @@
 import {useEffect, useState} from 'react';
 
-export default function ConditionSelectForm({ category, areas, groups, onSubmit }) {
+export default function ConditionSelectForm({category, areas, groups, changeAreas, onSubmit}) {
     const [selectedArea, setSelectedArea] = useState('');
     const [selectedGroup, setSelectedGroup] = useState('');
 
+    areas = Object.values(areas);
     useEffect(() => {
         setSelectedGroup('');
     }, [selectedArea]);
@@ -13,6 +14,11 @@ export default function ConditionSelectForm({ category, areas, groups, onSubmit 
         onSubmit({ area: selectedArea, group: selectedGroup });
     };
 
+    const onChangeArea = (e) => {
+        setSelectedArea(e.target.value)
+        changeAreas(e.target.value);
+    }
+
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -20,7 +26,7 @@ export default function ConditionSelectForm({ category, areas, groups, onSubmit 
                 <select
                     id="area"
                     value={selectedArea}
-                    onChange={(e) => setSelectedArea(e.target.value)}
+                    onChange={onChangeArea}
                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                 >
                     <option value="">選択してください</option>

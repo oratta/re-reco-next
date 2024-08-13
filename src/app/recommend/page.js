@@ -10,7 +10,11 @@ import {fetchApi} from '@/commons/utils/api';
 export default function RecommendView() {
     const [selectedCategory, setSelectedCategory] = useState('Cast');
     const [areas, setAreas] = useState([]);
-    const [groups, setGroups] = useState([]);
+    const [groups, setGroups] = useState([{
+        name: "先にエリアを選択してください",
+        id: "",
+        areaCode: "",
+    }]);
     const [jobListings, setJobListings] = useState([]);
     const [selectedCondition, setSelectedCondition] = useState({});
     const [recommendData, setRecommendData] = useState([]);
@@ -18,9 +22,9 @@ export default function RecommendView() {
 
     useEffect(() => {
         const fetchInitialData = async () => {
-            setAreas(await fetchApi('/api/areas'));
-            setGroups(await fetchApi('/api/groups'));
-            setJobListings(await fetchApi('/api/job-listings'));
+            setAreas(await fetchApi('/api/areas?type=index_code'));
+            // setGroups(await fetchApi('/api/groups'));
+            setJobListings(await fetchApi('/api/job-listings?type=listing'));
         };
         fetchInitialData();
 
@@ -49,6 +53,12 @@ export default function RecommendView() {
         setCurrentPage(1);
     };
 
+    const handleChangeAreas = async (areaCode) => {
+        const groups = await fetchApi(`/api/groups?areaCode=${areaCode}`);
+        console.log(groups);
+        setGroups(groups);
+    };
+
     const loadMoreData = async () => {
         // TODO: API呼び出しを実装して追加のデータをロード
         // この例では、ダミーデータを追加します
@@ -57,17 +67,27 @@ export default function RecommendView() {
         setCurrentPage(prevPage => prevPage + 1);
     };
 
+    const searchWithJobListing = async (jobListingId) => {
+        console.log("jobSelect");
+        setRecommendData(await fetchApi(`/api/job-listings/${jobListingId}/job-reservation-rates?as=cast`));
+    }
+
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold">レコメンド</h1>
             <CategoryTab selectedCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
             {selectedCategory === 'Job_Listing' ? (
-                <JobListingSelect jobListings={jobListings} onSubmit={handleConditionSubmit} />
+                <JobListingSelect
+                    areas={areas}
+                    jobListings={jobListings}
+                    onSearch={searchWithJobListing}
+                    onSubmit={handleConditionSubmit}/>
             ) : (
                 <ConditionSelectForm
                     category={selectedCategory}
                     areas={areas}
                     groups={groups}
+                    changeAreas={handleChangeAreas}
                     onSubmit={handleConditionSubmit}
                 />
             )}

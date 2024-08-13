@@ -15,4 +15,8 @@ module.exports = {
     },
   },
   plugins: [],
+  safelist: [
+    'hover:bg-orange-700',
+    'bg-orange-500',
+  ],
 };

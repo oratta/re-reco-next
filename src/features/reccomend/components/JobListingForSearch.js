@@ -6,6 +6,7 @@ export default function JobListingForSearch({areas, jobListings, onSearch}) {
     const handleSearch = (jobId) => {
         console.log("onclick;", jobId);
         onSearch(jobId);
+        setSearchingJobId(jobId);
     }
     return (
         <table className="min-w-full bg-white border border-gray-200">
@@ -30,10 +31,10 @@ export default function JobListingForSearch({areas, jobListings, onSearch}) {
                                 px-4 py-2 rounded 
                                 ${
                                 searchingJobId === job.id ?
-                                    'bg-yellow-500 text-white'
+                                    'bg-orange-500 text-black'
                                     :
                                     'bg-blue-500 text-white hover:bg-blue-700'}`}
-                            disabled={searchingJobId !== "" && searchingJobId !== job.id}
+                            disabled={searchingJobId !== "" && searchingJobId === job.id}
                         >
                             <FaSearch color="white"/>
                         </button>

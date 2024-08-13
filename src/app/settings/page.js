@@ -1,11 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import AreaAdd from './AreaAdd';
 import ConditionCreate from './ConditionCreate';
+import {fetchApi} from "@/commons/utils/api";
 
 export default function SettingsView() {
     const [activeTab, setActiveTab] = useState('area');
+    const [areas, setAreas] = useState(null);
+
+    useEffect(() => {
+        async function fetchData() {
+            setAreas(await fetchApi('/api/areas?type=index_code'));
+        }
+
+        fetchData();
+    }, []);
 
     return (
         <div className="space-y-6">
@@ -24,7 +34,7 @@ export default function SettingsView() {
                     条件作成
                 </button>
             </div>
-            {activeTab === 'area' ? <AreaAdd /> : <ConditionCreate />}
+            {activeTab === 'area' ? <AreaAdd areas={areas}/> : <ConditionCreate/>}
         </div>
     );
 }

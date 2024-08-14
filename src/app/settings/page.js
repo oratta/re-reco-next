@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import AreaAdd from './AreaAdd';
 import ConditionCreate from './ConditionCreate';
-import { fetchApi } from "@/commons/utils/api";
+import {fetchApi} from "@/commons/utils/api";
 import SuccessDialog from '@/commons/components/elements/SuccessDialog';
 import OtherSettings from "@/app/settings/OtherSettings";
 
@@ -71,6 +71,7 @@ export default function SettingsView() {
 
         } catch (error) {
             console.error(`Error occurred while deleting area: ${error}`);
+            setError(`Error occurred while creating area`);
         }
     }
 
@@ -100,12 +101,12 @@ export default function SettingsView() {
                     >
                         エリア追加
                     </button>
-                    <button
-                        className={`px-4 py-2 rounded ${activeTab === 'condition' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                        onClick={() => setActiveTab('condition')}
-                    >
-                        条件作成
-                    </button>
+                    {/*<button*/}
+                    {/*    className={`px-4 py-2 rounded ${activeTab === 'condition' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}*/}
+                    {/*    onClick={() => setActiveTab('condition')}*/}
+                    {/*>*/}
+                    {/*    条件作成*/}
+                    {/*</button>*/}
                     <button
                         className={`px-4 py-2 rounded ${activeTab === 'other' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
                         onClick={() => setActiveTab('other')}

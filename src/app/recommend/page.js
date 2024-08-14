@@ -8,7 +8,7 @@ import JobListingSelect from '../../features/reccomend/components/JobListingSele
 import {fetchApi} from '@/commons/utils/api';
 
 export default function RecommendView() {
-    const [selectedCategory, setSelectedCategory] = useState('Cast');
+    const [selectedCategory, setSelectedCategory] = useState('Job_Listing');
     const [areas, setAreas] = useState([]);
     const [groups, setGroups] = useState([{
         name: "先にエリアを選択してください",

@@ -2,8 +2,6 @@
 
 import {useContext, useEffect, useState} from 'react';
 import JobOrderForm from '@/features/listingCast/components/JobOrderForm';
-import JobListingList from '@/features/listingCast/components/JobListingList';
-import JobListingDetail from '@/features/listingCast/components/JobListingDetail';
 import {fetchApi, fetchApiForce} from "@/commons/utils/api";
 import JobListingForExec from "@/features/listingCast/components/JobListingForExec";
 import JobProcessingContext from "@/commons/contexts/JobProcessingContext";
@@ -13,7 +11,6 @@ export default function JobOrderView() {
     const [jobStatus, setJobStatus] = useState({});
     const { processingJobId, setProcessingJobId } = useContext(JobProcessingContext);
     const [jobListings, setJobListings] = useState([]);
-    const [selectedJobListing, setSelectedJobListing] = useState(null);
     const [areas, setAreas] = useState([]);
 
     useEffect(() => {
@@ -78,7 +75,7 @@ export default function JobOrderView() {
         <div className="space-y-6">
             <h1 className="text-3xl font-bold">Job Order</h1>
             <JobOrderForm areas={areas} onSubmit={fetchJobListings} />
-            <div className="w-full">
+            <div className="w-full m-1">
                 <JobListingForExec
                     areas={areas}
                     jobListings={jobListings}
@@ -87,18 +84,6 @@ export default function JobOrderView() {
                     onStop={handleStopExecute}
                     onExecute={handleBulkExecute}
                 />
-            </div>
-            <div className="flex space-x-4">
-                <div className="w-1/2">
-                <JobListingList
-                        jobListings={jobListings}
-                        onSelectJobListing={setSelectedJobListing}
-                        areas={areas}
-                    />
-                </div>
-                <div className="w-1/2">
-                    {selectedJobListing && <JobListingDetail jobListing={selectedJobListing} areas={areas} />}
-                </div>
             </div>
         </div>
     );

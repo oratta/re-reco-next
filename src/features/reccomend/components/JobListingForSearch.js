@@ -21,7 +21,7 @@ export default function JobListingForSearch({areas, jobListings, onSearch}) {
             <tbody>
             {jobListings.map(job => (
                 <tr key={job.id} className="hover:bg-gray-100">
-                    <td className="py-2 px-4 border-b">{areas[job.areaCode]?.name}</td>
+                    <td className="py-2 px-4 border-b">{areas.find(area=>area.code===job.areaCode)?.name}</td>
                     <td className="py-2 px-4 border-b">{new Date(job.targetDate).toISOString().split('T')[0]}</td>
                     <td className={`py-2 px-4 border-b ${searchingJobId === job.id ? 'animate-blink' : ''}`}>{job.completeCount}</td>
                     <td className="py-2 px-4 border-b">

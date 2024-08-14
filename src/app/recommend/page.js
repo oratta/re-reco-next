@@ -69,7 +69,9 @@ export default function RecommendView() {
 
     const searchWithJobListing = async (jobListingId) => {
         console.log("jobSelect");
-        setRecommendData(await fetchApi(`/api/job-listings/${jobListingId}/job-reservation-rates?as=cast`));
+        const data = await fetchApi(`/api/job-listings/${jobListingId}/job-reservation-rates?as=cast`);
+        console.log(data);
+        setRecommendData(data);
     }
 
     return (

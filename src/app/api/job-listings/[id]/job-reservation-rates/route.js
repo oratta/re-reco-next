@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server';
 import * as JobReservationRate from "@/commons/models/JobReservationRate";
 import {getWebParameter} from "@/commons/utils/api";
+import * as Cast from "@/commons/models/Cast";
 
 const AS = {
     CAST: "cast",
@@ -21,7 +22,9 @@ export async function GET(req, {params}) {
             }
         })
         result = jobReRes.map((jobReRe) => {
-            return jobReRe.cast
+            const cast = jobReRe.cast;
+            cast.thumbnailUrl = Cast.getThumbnailUrl(cast);
+            return cast;
         });
     } else {
         throw new Error("not implemented yet");

@@ -72,7 +72,7 @@ export async function finishJobReservationRate(cast, updateInfo = {}) {
     }
 }
 
-export function getSumbnailUrl(cast){
+export function getThumbnailUrl(cast){
     //https://img.cityheaven.net/img/girls/tt/smc-gotanda/sn_grpb0036197866_0000000000mb.jpg
     return `https://img.cityheaven.net/img/girls/tt/${cast.groupCode}/sn_grpb00${cast.code}_0000000000mb.jpg`
 }

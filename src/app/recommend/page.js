@@ -22,7 +22,7 @@ export default function RecommendView() {
 
     useEffect(() => {
         const fetchInitialData = async () => {
-            setAreas(await fetchApi('/api/areas?type=index_code'));
+            setAreas(await fetchApi('/api/areas'));
             // setGroups(await fetchApi('/api/groups'));
             setJobListings(await fetchApi('/api/job-listings?type=listing'));
         };

@@ -17,7 +17,7 @@ const JobCastListView = () => {
 
     useEffect(() => {
         async function fetchData() {
-            setAreas(await fetchApi('/api/areas?type=index_code'));
+            setAreas(await fetchApi('/api/areas'));
             setJobListings(await fetchApi('/api/job-listings?type=listing'));
         }
         fetchData();

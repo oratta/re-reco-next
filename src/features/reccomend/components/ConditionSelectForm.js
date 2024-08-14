@@ -4,7 +4,6 @@ export default function ConditionSelectForm({category, areas, groups, changeArea
     const [selectedArea, setSelectedArea] = useState('');
     const [selectedGroup, setSelectedGroup] = useState('');
 
-    areas = Object.values(areas);
     useEffect(() => {
         setSelectedGroup('');
     }, [selectedArea]);

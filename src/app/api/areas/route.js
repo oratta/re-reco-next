@@ -8,13 +8,6 @@ export async function GET(req) {
         let areas = await prisma.area.findMany({
             orderBy: { createdAt: 'desc' },
         })
-        if(type === "index_code"){
-            const areasByCode = areas.reduce((acc, area) => {
-                acc[area.code] = area;
-                return acc;
-            }, {});
-            areas =areasByCode;
-        }
 
         return NextResponse.json(areas);
     } catch (error) {

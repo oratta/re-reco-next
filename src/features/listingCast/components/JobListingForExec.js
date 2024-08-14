@@ -15,13 +15,13 @@ const JobListingForExec = ({ areas, jobListings, jobStatus, processingJobId, onS
             <tbody>
             {jobListings.map(job => (
                 <tr key={job.id} className="hover:bg-gray-100">
-                    <td className="py-2 px-4 border-b">{areas[job.areaCode]?.name}</td>
+                    <td className="py-2 px-4 border-b">{areas.find(area=>area.code===job.areaCode)?.name}</td>
                     <td className="py-2 px-4 border-b">{new Date(job.targetDate).toISOString().split('T')[0]}</td>
                     <td className="py-2 px-4 border-b">{jobStatus[job.id] || job.status}</td>
                     <td className={`py-2 px-4 border-b ${processingJobId === job.id ? 'animate-blink' : ''}`}>{job.pendingCount}</td>
                     <td className="py-2 px-4 border-b">
                         {job.pendingCount === 0 ? (
-                            <FaCheck className="text-gray-500" />
+                            <FaCheck className="text-gray-500"/>
                         ) : (
                             <>
                                 <button
@@ -30,7 +30,7 @@ const JobListingForExec = ({ areas, jobListings, jobStatus, processingJobId, onS
                                     disabled={processingJobId !== null && processingJobId !== job.id}
                                     style={{backgroundColor: processingJobId !== null && processingJobId !== job.id ? 'gray' : 'orange'}}
                                 >
-                                    <FaPlay color="white" />
+                                    <FaPlay color="white"/>
                                 </button>
                                 {processingJobId === job.id && (
                                     <button

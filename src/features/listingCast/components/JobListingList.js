@@ -1,5 +1,4 @@
 export default function JobListingList({jobListings, onSelectJobListing, areas}) {
-    areas = Object.values(areas);
     return (
         <div>
             <h2 className="mb-4 text-xl font-semibold">Job List</h2>

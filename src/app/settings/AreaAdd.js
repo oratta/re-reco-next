@@ -9,9 +9,6 @@ export default function AreaAdd({areas}) {
     const [areaName, setAreaName] = useState('');
     const [areaCode, setAreaCode] = useState('');
 
-    console.log(areas);
-    areas = Object.values(areas);
-    console.log(areas);
     const onSubmit = async (data) => {
         const {areaName, areaCode} = data;
         // Area name and code uniqueness

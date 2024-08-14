@@ -11,7 +11,7 @@ export default function SettingsView() {
 
     useEffect(() => {
         async function fetchData() {
-            setAreas(await fetchApi('/api/areas?type=index_code'));
+            setAreas(await fetchApi('/api/areas'));
         }
 
         fetchData();

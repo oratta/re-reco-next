@@ -12,6 +12,10 @@ export default function SettingsView() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [dialogMessage, setDialogMessage] = useState({
+        title: "",
+        message: "",
+    });
 
     useEffect(() => {
         async function fetchData() {
@@ -42,6 +46,10 @@ export default function SettingsView() {
             const result = await fetchApi('/api/areas', 'POST', { areaName, areaCode });
             setAreas(prevAreas => [...prevAreas, result]);
             setIsDialogOpen(true);
+            setDialogMessage({
+                title: "エリア作成成功",
+                message: "エリアが正常に作成されました。"
+            });
 
         } catch (error) {
             console.error(`Error occurred while creating area: ${error}`);
@@ -49,13 +57,17 @@ export default function SettingsView() {
         }
     }
 
-    async function deleteArea(areaCode) {
+    async function deleteArea(id) {
         try {
-            // const result = await fetchApi(`/api/areas/${areaCode}`, 'DELETE');
-            const result = { success: true };
-            if (result.success) {
-                setAreas(prevAreas => prevAreas.filter(area => area.code !== areaCode));
-            }
+            await fetchApi(`/api/areas/${id}`, 'DELETE');
+            const response = setAreas(prevAreas => prevAreas.filter(area => area.id !== id));
+            console.log(response);
+            setIsDialogOpen(true);
+            setDialogMessage({
+                title: "削除成功",
+                message: "エリアが正常に削除されました。"
+            });
+
         } catch (error) {
             console.error(`Error occurred while deleting area: ${error}`);
         }
@@ -74,8 +86,8 @@ export default function SettingsView() {
             <SuccessDialog
                 isOpen={isDialogOpen}
                 setIsOpen={setIsDialogOpen}
-                title="操作成功"
-                message="エリアが正常に追加されました。"
+                title={dialogMessage.title}
+                message={dialogMessage.message}
             />
 
             <div className="space-y-6">

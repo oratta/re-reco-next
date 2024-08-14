@@ -9,16 +9,8 @@ export default function AreaAdd({ areas, parentSetAreas, parentOnSubmit, parentO
         parentOnSubmit(data);
     };
 
-    async function deleteArea(areaCode){
-        try {
-            const result = await fetchApi('/api/areas/' + areaCode, 'DELETE');
-            if (result.success) {
-                console.log("area deleted successfully.");
-                parentSetAreas(result);
-            }
-        } catch (error) {
-            console.error(`Error occurred while deleting area: ${error}`);
-        }
+    async function deleteArea(areaId){
+        parentOnDelete(areaId);
     }
 
     return (
@@ -81,7 +73,7 @@ export default function AreaAdd({ areas, parentSetAreas, parentOnSubmit, parentO
                             <td className='border px-4 py-2 border-gray-300'>{area.name}</td>
                             <td className='border px-4 py-2 border-gray-300'>{area.code}</td>
                             <td className='border px-4 py-2 border-gray-300'>
-                                <button onClick={() => deleteArea(area.code)} className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'>
+                                <button onClick={() => deleteArea(area.id)} className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'>
                                     Delete
                                 </button>
                             </td>

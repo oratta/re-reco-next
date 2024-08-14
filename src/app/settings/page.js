@@ -5,6 +5,7 @@ import AreaAdd from './AreaAdd';
 import ConditionCreate from './ConditionCreate';
 import { fetchApi } from "@/commons/utils/api";
 import SuccessDialog from '@/commons/components/elements/SuccessDialog';
+import OtherSettings from "@/app/settings/OtherSettings";
 
 export default function SettingsView() {
     const [activeTab, setActiveTab] = useState('area');
@@ -105,6 +106,12 @@ export default function SettingsView() {
                     >
                         条件作成
                     </button>
+                    <button
+                        className={`px-4 py-2 rounded ${activeTab === 'other' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                        onClick={() => setActiveTab('other')}
+                    >
+                        その他
+                    </button>
                 </div>
                 {activeTab === 'area' ?
                     <AreaAdd
@@ -113,8 +120,10 @@ export default function SettingsView() {
                         parentOnSubmit={addArea}
                         parentOnDelete={deleteArea}
                     />
-                    :
+                    : activeTab === 'condition' ?
                     <ConditionCreate />
+                    :
+                    <OtherSettings />
                 }
             </div>
         </>

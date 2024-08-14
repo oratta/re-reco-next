@@ -11,7 +11,6 @@ export default function JobOrderView() {
     const [jobStatus, setJobStatus] = useState({});
     const { processingJobId, setProcessingJobId } = useContext(JobProcessingContext);
     const [jobListings, setJobListings] = useState([]);
-    const [selectedJobListing, setSelectedJobListing] = useState(null);
     const [areas, setAreas] = useState([]);
 
     useEffect(() => {

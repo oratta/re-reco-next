@@ -1,6 +1,5 @@
 import prisma from '@/commons/libs/prisma';
 import {NextResponse} from 'next/server';
-import * as Cast from '@/commons/models/Cast';
 
 const MODE_GROUP = "group";
 const MODE_CAST = "cast";
@@ -51,6 +50,7 @@ export async function GET(req) {
     if (mode === MODE_CAST) {
         where = {
             areaCode: areaCode,
+            jobCount: {not: 0},
         }
         if (groupCode) {
             where = {
@@ -75,5 +75,5 @@ export async function GET(req) {
         skip: offset
     });
 
-    return NextResponse.json(processedData);
+    return NextResponse.json(data);
 }

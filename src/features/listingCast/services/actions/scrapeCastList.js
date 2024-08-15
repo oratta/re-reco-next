@@ -1,8 +1,6 @@
 import prisma from '@/commons/libs/prisma';
 import {URL_BASE_CAST_LIST} from '@/configs/appConst';
 import {MAX_CAST_LIST_SIZE} from "@/configs/appSetting";
-import * as cheerio from 'cheerio';
-import * as Cast from "@/commons/models/Cast";
 import {consoleError, consoleLog} from "@/commons/utils/log";
 import {getCastList, getListSize, getPagingList} from "@/commons/libs/domHeaven.v1";
 import {formatDate} from "date-fns";
@@ -60,9 +58,9 @@ async function createJobReserveRate($, jobListingId) {
     castList.at(-1).isLastList = true;
 
     // トランザクションを使用してデータベース操作を行う
-    await prisma.$transaction(async (tx) => {
-        for (const cast of castList) {
-            try{
+    for (const cast of castList) {
+        try {
+            await prisma.$transaction(async (tx) => {
                 await tx.area.upsert({
                     where: {code: cast.areaCode},
                     update: {},
@@ -74,7 +72,7 @@ async function createJobReserveRate($, jobListingId) {
 
                 // Group の connectOrCreate
                 await tx.group.upsert({
-                    where: { code: cast.groupCode },
+                    where: {code: cast.groupCode},
                     update: {},
                     create: {
                         code: cast.groupCode,
@@ -89,7 +87,7 @@ async function createJobReserveRate($, jobListingId) {
 
                 // Cast の connectOrCreate
                 await tx.cast.upsert({
-                    where: { code: cast.code },
+                    where: {code: cast.code},
                     update: {},
                     create: {
                         code: cast.code,
@@ -119,14 +117,14 @@ async function createJobReserveRate($, jobListingId) {
                         isLastList: cast.isLastList || false,
                     },
                 });
-
-            }catch(error){
-                consoleLog("[Alert] fail to save at jobListing:" + error.message);
-                consoleLog(cast);
-            }
+                consoleLog("create jobReservationRate");
+            });
+        } catch (error) {
+            consoleLog("[Alert] fail to save at jobListing:" + error.message);
+            consoleLog(cast);
         }
-        consoleLog("Job finished: 1 page");
-    });
+    }
+    consoleLog("Job finished: 1 page");
 }
 
 function getUrl(jobListing) {

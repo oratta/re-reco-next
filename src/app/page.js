@@ -36,7 +36,7 @@ export default function Home() {
             <ImageContainer src="/concierge.png" alt="Concierge" />
           </div>
           <div className="flex flex-col w-1/2 space-y-2">
-            <BigButton text="Order" href="/job-order" />
+            <BigButton text="Order" href="/order" />
             <BigButton text="Report" href="/recommend" />
           </div>
         </Layout>

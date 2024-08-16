@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { SearchCode } from 'lucide-react';
 import Image from 'next/image';
 
 const CreateOrder = () => {
@@ -54,8 +54,7 @@ const CreateOrder = () => {
                     <>
                         <input type="text" placeholder="paste url" className="w-full border p-2 rounded-md"/>
                         <div className="flex justify-end items-center space-x-2">
-                            <MessageCircle size={24}/>
-                            <button onClick={handleCheckClick} className="bg-green-500 text-white px-4 py-2 rounded-md">Check</button>
+                            <button onClick={handleCheckClick} className="bg-green-500 text-white px-4 py-2 rounded-md"><SearchCode size={24}/>Check</button>
                         </div>
                     </>
                 )}

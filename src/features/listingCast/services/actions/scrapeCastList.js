@@ -33,15 +33,6 @@ export async function scrapeCastList(jobListing) {
             await createJobReserveRate($, jobListing.id);
         }
 
-        // JobListing の更新
-        await prisma.jobListing.update({
-            where: { id: jobListing.id },
-            data: {
-                status: 'completed',
-                completedAt: new Date(),
-                listCount: listSize,
-            },
-        });
         return { success: true, message: 'Scraping completed', listSize: listSize};
     } catch (error) {
         consoleError(error, "failed to get scraping list", false);

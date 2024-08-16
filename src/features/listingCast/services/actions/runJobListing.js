@@ -8,8 +8,8 @@ export default async function runJobListing(job=null) {
 
     //TODO Implement Job task
     try{
-        await scrapeCastList(job);
-        job = await JobListing.saveComplete(jobId)
+        const {listSize} = await scrapeCastList(job);
+        job = await JobListing.saveComplete(jobId, listSize);
     }catch(error){
         console.log(error);
         console.log(error.message);

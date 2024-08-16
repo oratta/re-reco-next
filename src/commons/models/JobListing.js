@@ -31,12 +31,13 @@ export async function saveRunning(id){
     return job;
 }
 
-export async function saveComplete(id){
+export async function saveComplete(id, listSize){
     const job = await prisma.jobListing.update({
         where: {id},
         data: {
             status: STATUS.COMPLETED,
             completedAt: new Date(),
+            listCount: listSize,
             result: 'Job completed successfully'
         },
     });

@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
 import { SearchCode } from 'lucide-react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
+import ConfirmOrderModal from './ConfirmOrderModal';
 
 export default function CreateOrder() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,6 +20,10 @@ export default function CreateOrder() {
     };
 
     const handleModalClose = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleModalConfirm = () => {
         setIsModalOpen(false);
         setOrderList([...orderList, { id: Date.now(), name: 'New Order' }]);
     };
@@ -40,7 +43,7 @@ export default function CreateOrder() {
             return "Invalid URL format";
         }
         if (!/A\d{4,}/.test(value)) {
-            return "select a detail area";
+            return "URL must contain 'A' followed by at least 4 digits";
         }
         return true;
     };
@@ -98,11 +101,11 @@ export default function CreateOrder() {
                 )}
             </div>
 
-            <Transition appear show={isModalOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={() => setIsModalOpen(false)}>
-                    {/* Modal content remains unchanged */}
-                </Dialog>
-            </Transition>
+            <ConfirmOrderModal
+                isOpen={isModalOpen}
+                onClose={handleModalClose}
+                onConfirm={handleModalConfirm}
+            />
         </div>
     );
 }

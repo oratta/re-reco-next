@@ -5,14 +5,18 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { SearchCode } from 'lucide-react';
 import Image from 'next/image';
+import { useForm } from 'react-hook-form';
 
-const CreateOrder = () => {
+export default function CreateOrder() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [orderList, setOrderList] = useState([]);
     const [isJumped, setIsJumped] = useState(false);
     const [isJustNow, setIsJustNow] = useState(false);
 
-    const handleCheckClick = () => {
+    const { register, handleSubmit, formState: { errors } } = useForm();
+
+    const onSubmit = (data) => {
+        console.log(data);
         setIsModalOpen(true);
     };
 
@@ -26,6 +30,19 @@ const CreateOrder = () => {
         const baseUrl = 'https://www.cityheaven.net/tokyo/girl-list/typ102-typ103-typ202-typ203-typ204-typ304-typ305-typ306-typ307';
         const url = isJustNow ? baseUrl + 'play1-play10-play20-play30/' : baseUrl;
         window.open(url, '_blank');
+    };
+
+    const validateUrl = (value) => {
+        if (!value) {
+            return "URL is required";
+        }
+        if (!/^https?:\/\/.+/.test(value)) {
+            return "Invalid URL format";
+        }
+        if (!/A\d{4,}/.test(value)) {
+            return "select a detail area";
+        }
+        return true;
     };
 
     return (
@@ -51,12 +68,23 @@ const CreateOrder = () => {
                     </div>
                 </div>
                 {isJumped && (
-                    <>
-                        <input type="text" placeholder="paste url" className="w-full border p-2 rounded-md"/>
-                        <div className="flex justify-end items-center space-x-2">
-                            <button onClick={handleCheckClick} className="bg-green-500 text-white px-4 py-2 rounded-md"><SearchCode size={24}/>Check</button>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        <div>
+                            <input
+                                type="text"
+                                placeholder="paste url"
+                                {...register("url", { validate: validateUrl })}
+                                className={`w-full border p-2 rounded-md ${errors.url ? 'border-red-500' : ''}`}
+                            />
+                            {errors.url && <p className="text-red-500 text-sm mt-1">{errors.url.message}</p>}
                         </div>
-                    </>
+                        <div className="flex justify-end items-center space-x-2">
+                            <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded-md flex items-center">
+                                <SearchCode size={24}/>
+                                <span className="ml-2">Check</span>
+                            </button>
+                        </div>
+                    </form>
                 )}
                 {orderList.length > 0 && (
                     <div>
@@ -77,6 +105,4 @@ const CreateOrder = () => {
             </Transition>
         </div>
     );
-};
-
-export default CreateOrder;
+}

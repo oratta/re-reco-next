@@ -3,21 +3,18 @@
 import JobListingForExec from "@/features/listingCast/components/JobListingForExec";
 import {useContext, useEffect, useState} from "react";
 import {fetchApi} from "@/commons/utils/api";
-import * as JobListing from "@/commons/models/JobListing";
-import JobProcessingContext from "@/commons/contexts/JobProcessingContext";
-import {
-    establishSSEConnection,
-} from "@/features/listingCast/components/actions/sseConnection";
+import JobProcessingContext from "@/commons/components/contexts/JobProcessingContext";
+import {establishSSEConnection,} from "@/features/listingCast/components/actions/sseConnection";
+import {useAreas} from "@/commons/components/contexts/AreasContext";
 
 const JobCastListView = () => {
     const [jobStatus, setJobStatus] = useState({});
     const { processingJobId, setProcessingJobId } = useContext(JobProcessingContext);
     const [jobListings, setJobListings] = useState([]);
-    const [areas, setAreas] = useState([]);
+    const areas = useAreas();
 
     useEffect(() => {
         async function fetchData() {
-            setAreas(await fetchApi('/api/areas'));
             setJobListings(await fetchApi('/api/job-listings?type=listing'));
         }
         fetchData();

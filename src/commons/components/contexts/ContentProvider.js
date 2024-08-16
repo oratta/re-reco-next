@@ -1,10 +1,12 @@
 'use client';
 
 import {useEffect, useState} from "react";
-import JobProcessingContext from '@/commons/contexts/JobProcessingContext';
+import JobProcessingContext from '@/commons/components/contexts/JobProcessingContext';
+import {AreasProvider} from "@/commons/components/contexts/AreasContext";
 
 export default function ContentProvider({children}) {
     const [processingJobId, setProcessingJobId] = useState(null);
+
     useEffect(() => {
         const storedJobId = localStorage.getItem('processingJobId');
         if (storedJobId) {
@@ -22,7 +24,9 @@ export default function ContentProvider({children}) {
 
     return (
         <JobProcessingContext.Provider value={{processingJobId, setProcessingJobId}}>
-        {children}
+            <AreasProvider>
+                {children}
+            </AreasProvider>
         </JobProcessingContext.Provider>
     );
 }

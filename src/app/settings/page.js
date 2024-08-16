@@ -6,10 +6,12 @@ import ConditionCreate from './ConditionCreate';
 import {fetchApi} from "@/commons/utils/api";
 import SuccessDialog from '@/commons/components/elements/SuccessDialog';
 import OtherSettings from "@/app/settings/OtherSettings";
+import {useAreas, useAreasSetter} from "@/commons/components/contexts/AreasContext";
 
 export default function SettingsView() {
     const [activeTab, setActiveTab] = useState('area');
-    const [areas, setAreas] = useState({});
+    const areas = useAreas();
+    const setAreas = useAreasSetter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,25 +19,6 @@ export default function SettingsView() {
         title: "",
         message: "",
     });
-
-    useEffect(() => {
-        async function fetchData() {
-            setIsLoading(true);
-            try {
-                const fetchedAreas = await fetchApi('/api/areas');
-                console.log(fetchedAreas);
-                // fetchedAreasが配列であることを確認
-                setAreas(fetchedAreas);
-            } catch (error) {
-                console.error('Error fetching areas:', error);
-                setError('エリアの取得中にエラーが発生しました。');
-                setAreas([]);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchData();
-    }, []);
 
     useEffect(() => {
         console.log('Dialog state changed:', isDialogOpen);
@@ -74,11 +57,6 @@ export default function SettingsView() {
             setError(`Error occurred while creating area`);
         }
     }
-
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
     if (error) {
         return <div>Error: {error}</div>;
     }
@@ -117,7 +95,6 @@ export default function SettingsView() {
                 {activeTab === 'area' ?
                     <AreaAdd
                         areas={areas}
-                        parentSetAreas={setAreas}
                         parentOnSubmit={addArea}
                         parentOnDelete={deleteArea}
                     />

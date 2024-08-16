@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import JobProcessingContext from "@/commons/contexts/JobProcessingContext";
+import React, {useContext} from "react";
+import JobProcessingContext from "@/commons/components/contexts/JobProcessingContext";
 
 export default function OtherSettings() {
     const { processingJobId, setProcessingJobId } = useContext(JobProcessingContext);

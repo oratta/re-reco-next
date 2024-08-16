@@ -6,10 +6,11 @@ import ConditionSelectForm from '../../features/reccomend/components/ConditionSe
 import RecommendList from '../../features/reccomend/components/RecommendList';
 import JobListingSelect from '../../features/reccomend/components/JobListingSelect';
 import {fetchApi} from '@/commons/utils/api';
+import {useAreas} from "@/commons/components/contexts/AreasContext";
 
 export default function RecommendView() {
     const [selectedCategory, setSelectedCategory] = useState('Job_Listing');
-    const [areas, setAreas] = useState([]);
+    const areas = useAreas();
     const [groups, setGroups] = useState([{
         name: "先にエリアを選択してください",
         id: "",
@@ -22,8 +23,6 @@ export default function RecommendView() {
 
     useEffect(() => {
         const fetchInitialData = async () => {
-            setAreas(await fetchApi('/api/areas'));
-            // setGroups(await fetchApi('/api/groups'));
             setJobListings(await fetchApi('/api/job-listings?type=listing'));
         };
         fetchInitialData();

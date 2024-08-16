@@ -4,18 +4,18 @@ import {useContext, useEffect, useState} from 'react';
 import JobOrderForm from '@/features/listingCast/components/JobOrderForm';
 import {fetchApi, fetchApiForce} from "@/commons/utils/api";
 import JobListingForExec from "@/features/listingCast/components/JobListingForExec";
-import JobProcessingContext from "@/commons/contexts/JobProcessingContext";
+import JobProcessingContext from "@/commons/components/contexts/JobProcessingContext";
 import {establishSSEConnection} from "@/features/listingCast/components/actions/sseConnection";
+import {useAreas} from "@/commons/components/contexts/AreasContext";
 
 export default function JobOrderView() {
     const [jobStatus, setJobStatus] = useState({});
     const { processingJobId, setProcessingJobId } = useContext(JobProcessingContext);
     const [jobListings, setJobListings] = useState([]);
-    const [areas, setAreas] = useState([]);
+    const areas = useAreas();
 
     useEffect(() => {
         async function fetchData() {
-            setAreas(await fetchApi('/api/areas'));
             setJobListings(await fetchApi('/api/job-listings?type=listing'));
         }
         fetchData();

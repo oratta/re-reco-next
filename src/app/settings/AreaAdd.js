@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { fetchApi } from '@/commons/utils/api';
+import React from 'react';
+import {useForm} from 'react-hook-form';
 
-export default function AreaAdd({ areas, parentSetAreas, parentOnSubmit, parentOnDelete }) {
+export default function AreaAdd({areas, parentOnSubmit, parentOnDelete}) {
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const onSubmit = async (data) => {

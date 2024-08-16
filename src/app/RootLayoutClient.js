@@ -26,16 +26,16 @@ export default function RootLayoutClient({children}) {
     return (
         <>
             <header className="flex justify-between items-center p-4 bg-white shadow-md">
-                <h1 className="text-2xl text-gray-800 font-bold flex items-center">
+                <Link href="/" className="text-2xl text-gray-800 font-bold flex items-center cursor-pointer">
                     <Image
                         src="/logo.png"
                         alt="logo image"
                         width={40}
                         height={40}
-                        className="mr-2"
+                        className="mr-1"
                     />
-                    re-reco
-                </h1>
+                    <h1>re-reco</h1>
+                </Link>
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     className="text-gray-600 hover:text-gray-800 focus:outline-none"

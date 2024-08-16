@@ -1,18 +1,25 @@
 import React from 'react';
 import Image from 'next/image';
+import styles from './SplashScreen.module.css';
 
 export default function SplashScreen() {
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-100">
-            <div className="text-center">
-                <Image
-                    src="/logo.png"
-                    alt="logo image"
-                    width={128}
-                    height={128}
-                />
-                <h1 className="text-4xl font-bold mt-4">re-reco</h1>
-                <p className="mt-2">Loading...</p>
+        <div className={styles.splashContainer}>
+            <div className={styles.content}>
+                <div className={styles.imageWrapper}>
+                    <Image
+                        src="/logo.png"
+                        alt="logo image"
+                        width={256}
+                        height={256}
+                        className={styles.rotatingImage}
+                    />
+                </div>
+                <h1 className={styles.title}>re-reco</h1>
+                <p className={styles.loadingText}>
+                    Loading<span className={styles.dot1}>.</span><span className={styles.dot2}>.</span><span
+                    className={styles.dot3}>.</span>
+                </p>
             </div>
         </div>
     );

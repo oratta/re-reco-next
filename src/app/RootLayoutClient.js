@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from "next/legacy/image";
 import SplashScreen from "@/commons/components/elements/SplashScreen";
 import { Menu } from 'lucide-react';
 

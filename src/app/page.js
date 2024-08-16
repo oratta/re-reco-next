@@ -1,4 +1,4 @@
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Link from "next/link";
 
 const BigButton = ({ text, href }) => (
@@ -12,11 +12,13 @@ const BigButton = ({ text, href }) => (
 const ImageContainer = ({ src, alt }) => (
     <div className="w-full aspect-square relative rounded-lg overflow-hidden bg-white">
       <Image
-          src={src}
-          alt={alt}
-          layout="fill"
-          objectFit="contain"
-      />
+        src={src}
+        alt={alt}
+        fill
+        sizes="100vw"
+        style={{
+          objectFit: "contain"
+        }} />
     </div>
 );
 

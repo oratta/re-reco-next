@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from "next/legacy/image";
+import Image from "next/image";
 import styles from './SplashScreen.module.css';
 
 export default function SplashScreen() {
@@ -13,7 +13,10 @@ export default function SplashScreen() {
                         width={256}
                         height={256}
                         className={styles.rotatingImage}
-                    />
+                        style={{
+                            maxWidth: "100%",
+                            height: "auto"
+                        }} />
                 </div>
                 <h1 className={styles.title}>re-reco</h1>
                 <p className={styles.loadingText}>

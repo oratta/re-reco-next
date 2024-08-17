@@ -7,18 +7,19 @@ import {fetchApi} from "@/commons/utils/api";
 import SuccessDialog from '@/commons/components/elements/SuccessDialog';
 import OtherSettings from "@/app/settings/OtherSettings";
 import {useAreas, useAreasSetter} from "@/commons/components/contexts/AreasContext";
+import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 
 export default function SettingsView() {
     const [activeTab, setActiveTab] = useState('area');
     const areas = useAreas();
     const setAreas = useAreasSetter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [dialogMessage, setDialogMessage] = useState({
         title: "",
         message: "",
     });
+    const setIsLoading = useLoadingSetter()
 
     useEffect(() => {
         console.log('Dialog state changed:', isDialogOpen);
@@ -27,7 +28,7 @@ export default function SettingsView() {
     async function addArea(data) {
         const { areaName, areaCode } = data;
         try {
-            const result = await fetchApi('/api/areas', 'POST', { areaName, areaCode });
+            const result = await fetchApi('/api/areas', 'POST', setIsLoading, { areaName, areaCode });
             setAreas(prevAreas => [...prevAreas, result]);
             setIsDialogOpen(true);
             setDialogMessage({
@@ -43,7 +44,7 @@ export default function SettingsView() {
 
     async function deleteArea(id) {
         try {
-            await fetchApi(`/api/areas/${id}`, 'DELETE');
+            await fetchApi(`/api/areas/${id}`, 'DELETE', setIsLoading);
             const response = setAreas(prevAreas => prevAreas.filter(area => area.id !== id));
             console.log(response);
             setIsDialogOpen(true);

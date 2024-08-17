@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import ConfirmOrderModal from './ConfirmOrderModal';
 import {fetchApi} from "@/commons/utils/api";
-import {list} from "postcss";
+import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 
 export default function CreateOrder() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,13 +17,14 @@ export default function CreateOrder() {
     const [targetDate, setTargetDate] = useState('');
     const [listSize, setListSize] = useState(0);
     const [isValidOrder, setIsValidOrder] = useState(false);
+    const setIsLoading = useLoadingSetter();
 
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const onSubmit = async (data) => {
 
         console.log(data);
-        const result = await fetchApi('/api/job-listings/confirm', 'POST', data);
+        const result = await fetchApi('/api/job-listings/confirm', 'POST',setIsLoading, data);
         console.log(result);
 
         setAreaName(result.areaName);

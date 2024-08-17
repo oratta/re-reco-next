@@ -6,16 +6,18 @@ import {fetchApi} from "@/commons/utils/api";
 import JobProcessingContext from "@/commons/components/contexts/JobProcessingContext";
 import {establishSSEConnection,} from "@/features/listingCast/components/actions/sseConnection";
 import {useAreas} from "@/commons/components/contexts/AreasContext";
+import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 
 const JobCastListView = () => {
     const [jobStatus, setJobStatus] = useState({});
     const { processingJobId, setProcessingJobId } = useContext(JobProcessingContext);
     const [jobListings, setJobListings] = useState([]);
     const areas = useAreas();
+    const setIsLoading = useLoadingSetter();
 
     useEffect(() => {
         async function fetchData() {
-            setJobListings(await fetchApi('/api/job-listings?type=listing'));
+            setJobListings(await fetchApi('/api/job-listings?type=listing', 'GET', setIsLoading));
         }
         fetchData();
         if (processingJobId) {
@@ -30,7 +32,7 @@ const JobCastListView = () => {
             await fetch(`/api/job-listings/${jobListingId}/bulk-execute`, {
                 method: 'POST'
             });
-            setJobListings(await fetchApi('/api/job-listings?type=listing'));
+            setJobListings(await fetchApi('/api/job-listings?type=listing', 'GET', setIsLoading));
         } catch (error) {
             console.error('Error executing bulk job reservation rates:', error);
             setProcessingJobId(null);

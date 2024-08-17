@@ -7,16 +7,18 @@ import JobListingForExec from "@/features/listingCast/components/JobListingForEx
 import JobProcessingContext from "@/commons/components/contexts/JobProcessingContext";
 import {establishSSEConnection} from "@/features/listingCast/components/actions/sseConnection";
 import {useAreas} from "@/commons/components/contexts/AreasContext";
+import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 
 export default function JobOrderView() {
     const [jobStatus, setJobStatus] = useState({});
     const { processingJobId, setProcessingJobId } = useContext(JobProcessingContext);
     const [jobListings, setJobListings] = useState([]);
     const areas = useAreas();
+    const setIsLoading = useLoadingSetter();
 
     useEffect(() => {
         async function fetchData() {
-            setJobListings(await fetchApi('/api/job-listings?type=listing'));
+            setJobListings(await fetchApi('/api/job-listings?type=listing', 'GET', setIsLoading));
         }
         fetchData();
     }, []);
@@ -24,7 +26,7 @@ export default function JobOrderView() {
     useEffect(() => {
         async function fetchJobListings(){
             try {
-                setJobListings(await fetchApiForce('/api/job-listings?type=listing'));
+                setJobListings(await fetchApiForce('/api/job-listings?type=listing', 'GET', setIsLoading));
             } catch (error) {
                 console.error('Failed to fetch areas');
             }
@@ -42,7 +44,7 @@ export default function JobOrderView() {
     }, [jobListings]);
 
     const fetchJobListings = async () => {
-        const updatedJobListings =  await fetchApiForce('/api/job-listings?type=latest');
+        const updatedJobListings =  await fetchApiForce('/api/job-listings?type=latest', 'GET', setIsLoading);
         setJobListings(updatedJobListings);
     }
 
@@ -53,7 +55,7 @@ export default function JobOrderView() {
             await fetch(`/api/job-listings/${jobListingId}/bulk-execute`, {
                 method: 'POST'
             });
-            setJobListings(await fetchApi('/api/job-listings?type=listing'));
+            setJobListings(await fetchApi('/api/job-listings?type=listing', 'GET', setIsLoading));
         } catch (error) {
             console.error('Error executing bulk job reservation rates:', error);
             setProcessingJobId(null);

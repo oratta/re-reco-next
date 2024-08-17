@@ -6,8 +6,11 @@ import { DATE_RANGE_DAYS } from "@/configs/appSetting";
 import formSubmit from "./actions/formSubmit";
 
 import {formatDate} from "date-fns";
+import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 
 export default function JobOrderForm({areas, onSubmit}) {
+    const setIsLoading = useLoadingSetter();
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const maxDate = new Date(today);
@@ -29,7 +32,7 @@ export default function JobOrderForm({areas, onSubmit}) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        formSubmit(formData);
+        formSubmit(formData, setIsLoading);
         onSubmit();
     }
 

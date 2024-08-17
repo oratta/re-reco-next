@@ -7,6 +7,7 @@ import RecommendList from '../../features/reccomend/components/RecommendList';
 import JobListingSelect from '../../features/reccomend/components/JobListingSelect';
 import {fetchApi} from '@/commons/utils/api';
 import {useAreas} from "@/commons/components/contexts/AreasContext";
+import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 
 export default function RecommendView() {
     const [selectedCategory, setSelectedCategory] = useState('Job_Listing');
@@ -20,10 +21,11 @@ export default function RecommendView() {
     const [selectedCondition, setSelectedCondition] = useState({});
     const [recommendData, setRecommendData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const setIsLoading = useLoadingSetter();
 
     useEffect(() => {
         const fetchInitialData = async () => {
-            setJobListings(await fetchApi('/api/job-listings?type=listing'));
+            setJobListings(await fetchApi('/api/job-listings?type=listing', 'GET', setIsLoading));
         };
         fetchInitialData();
 
@@ -47,13 +49,13 @@ export default function RecommendView() {
             params.append("groupCode", condition.group.code);
         }
 
-        const data = await fetchApi('/api/casts?' + params.toString());
+        const data = await fetchApi('/api/casts?' + params.toString(), 'GET', setIsLoading);
         setRecommendData(data);
         setCurrentPage(1);
     };
 
     const handleChangeAreas = async (areaCode) => {
-        const groups = await fetchApi(`/api/groups?areaCode=${areaCode}`);
+        const groups = await fetchApi(`/api/groups?areaCode=${areaCode}`, 'GET', setIsLoading);
         console.log(groups);
         setGroups(groups);
     };
@@ -61,14 +63,14 @@ export default function RecommendView() {
     const loadMoreData = async () => {
         // TODO: API呼び出しを実装して追加のデータをロード
         // この例では、ダミーデータを追加します
-        const moreData = await fetchApi(`/api/casts?page=${currentPage + 1}`);
+        const moreData = await fetchApi(`/api/casts?page=${currentPage + 1}`, 'GET', setIsLoading);
         setRecommendData(prevData => [...prevData, ...moreData]);
         setCurrentPage(prevPage => prevPage + 1);
     };
 
     const searchWithJobListing = async (jobListingId) => {
         console.log("jobSelect");
-        const data = await fetchApi(`/api/job-listings/${jobListingId}/job-reservation-rates?as=cast`);
+        const data = await fetchApi(`/api/job-listings/${jobListingId}/job-reservation-rates?as=cast`, 'GET', setIsLoading);
         console.log(data);
         setRecommendData(data);
     }

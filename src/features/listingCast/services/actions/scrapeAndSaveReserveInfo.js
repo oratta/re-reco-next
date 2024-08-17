@@ -2,7 +2,7 @@ import prisma from '@/commons/libs/prisma';
 import {URL_BASE_CAST_LIST} from '@/configs/appConst';
 import {MAX_CAST_LIST_SIZE} from "@/configs/appSetting";
 import {consoleError, consoleLog} from "@/commons/utils/log";
-import {getCastList, getListSize, getPagingList} from "@/commons/libs/domHeaven.v1";
+import {getAreaName, getCastList, getListSize, getPagingList} from "@/commons/libs/domHeaven.v1";
 import {formatDate} from "date-fns";
 import {getQuery} from "@/commons/utils/cheerioUtil";
 
@@ -11,32 +11,52 @@ import {getQuery} from "@/commons/utils/cheerioUtil";
  * @param jobListing
  * @returns {Promise<{success: boolean, listSize, message: string}>}
  */
-export async function scrapeCastList(jobListing) {
+export async function scrapeCastListFromJob(jobListing) {
     try {
         const url = getUrl(jobListing);
         const $ = await getQuery(url);
+        const {areaName, listSize} = scrapeCastListInfo($);
 
-        const listSize = getListSize($);
+
         consoleLog(`List Size: ${listSize}`);
         if (isNaN(listSize) || listSize > MAX_CAST_LIST_SIZE) {
             throw new Error(`Error: Invalid or too large list size: ${listSize}`);
         }
 
-        const pageList = getPagingList($);
-        consoleLog(`pageSize: ${pageList.length+1}`);
-        consoleLog(url);
-        consoleLog(pageList);
-
-        await createJobReserveRate($, jobListing.id);
-        for(const page of pageList) {
-            const $ = await getQuery(page);
-            await createJobReserveRate($, jobListing.id);
-        }
+        await scrapeAndSaveReserveInfo($, jobListing.id);
 
         return { success: true, message: 'Scraping completed', listSize: listSize};
     } catch (error) {
         consoleError(error, "failed to get scraping list", false);
         return { success: false, message: 'Scraping failed'};
+    }
+}
+
+export function scrapeCastListInfo($){
+    const listSize = getListSize($);
+    const areaName = getAreaName($);
+    if(!areaName){
+        throw new Error('Error: Area name is empty');
+    }
+    return {areaName, listSize};
+}
+
+export async function scrapeAndSaveReserveInfo($, jobListId){
+    try{
+        const pageList = getPagingList($);
+        consoleLog(`pageSize: ${pageList.length+1}`);
+        consoleLog(pageList);
+
+        await createJobReserveRate($, jobListId);
+        for(const page of pageList) {
+            const $ = await getQuery(page);
+            await createJobReserveRate($, jobListId);
+        }
+
+        return true;
+
+    }catch (error) {
+        throw error;
     }
 }
 

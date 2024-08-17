@@ -1,8 +1,10 @@
 import React from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
+import Image from "next/image";
 
-export default function ConfirmOrderModal({ isOpen, onClose, onConfirm }) {
+export default function ConfirmOrderModal({ isOpen, onClose, onConfirm, areaName, targetDate, count, isValidOrder }) {
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -30,26 +32,40 @@ export default function ConfirmOrderModal({ isOpen, onClose, onConfirm }) {
                             leaveTo="opacity-0 scale-95"
                         >
                             <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                <Dialog.Title
-                                    as="h3"
-                                    className="text-lg font-medium leading-6 text-gray-900"
-                                >
-                                    Confirm Order
-                                </Dialog.Title>
-                                <div className="mt-2">
-                                    <p className="text-sm text-gray-500">
-                                        Are you sure you want to create this order?
-                                    </p>
-                                </div>
+                                <div className="flex mb-4 space-x-10">
+                                    <div className="w-1/4 mx-2">
+                                        <Image src="/concierge.png" alt="Concierge" width={48} height={48}/>
+                                    </div>
+                                    <div>
+                                        <div className="text-center">
+                                            <p className="text-lg font-semibold">{areaName}</p>
+                                            <p className="text-sm text-gray-500">{targetDate}</p>
+                                        </div>
+                                        <div className="mb-4">
+                                            <p className="text-2xl font-bold text-center">{count}</p>
+                                            {isValidOrder ? (
+                                                <p className="text-center text-gray-600">casts is available</p>
+                                            ) : (
+                                                <p className="text-red-500 text-sm mb-4">The number of casts exceeds the
+                                                    limit or 0</p>
+                                            )}
 
-                                <div className="mt-4">
-                                    <button
-                                        type="button"
-                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                        onClick={onConfirm}
-                                    >
-                                        Confirm
-                                    </button>
+                                        </div>
+                                        <div className="mt-4 flex justify-center">
+                                            <button
+                                                type="button"
+                                                className={`inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                                                    isValidOrder
+                                                        ? 'bg-blue-100 text-blue-900 hover:bg-blue-200'
+                                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                }`}
+                                                onClick={onConfirm}
+                                                disabled={!isValidOrder}
+                                            >
+                                                Confirm
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </Dialog.Panel>
                         </Transition.Child>

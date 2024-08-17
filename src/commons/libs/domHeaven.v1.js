@@ -13,6 +13,10 @@ export function getListSize($){
     return parseInt($('#all-count_left').text(), 10);
 }
 
+export function getAreaName($){
+    return $('head > title').text().replace(/の.*/,'');
+}
+
 export function getCastList($){
     return $('div.girlListFooter.main_girlListFooter.main_reserve_girlListFooter > a')
         .map((_, link) => {

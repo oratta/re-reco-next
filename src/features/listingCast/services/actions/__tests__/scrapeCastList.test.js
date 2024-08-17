@@ -1,4 +1,4 @@
-import { scrapeCastList} from '@/features/listingCast/services/actions/scrapeCastList';
+import { scrapeCastListFromJob} from '@/features/listingCast/services/actions/scrapeAndSaveReserveInfo';
 import prisma from '@/commons/libs/prisma';
 import { getQuery } from '@/commons/utils/cheerioUtil';
 import { consoleError, consoleLog } from '@/commons/utils/log';
@@ -33,7 +33,7 @@ describe('scrapeCastList', () => {
         getPagingList.mockReturnValueOnce([]);
         getCastList.mockReturnValueOnce([{ code: 'cast1', areaCode: 'A1304', groupCode: 'group1', reservationUrl: 'url1' }]);
 
-        const result = await scrapeCastList(jobListing);
+        const result = await scrapeCastListFromJob(jobListing);
 
         expect(result).toEqual({ success: true, message: 'Scraping completed', listSize: 3 });
     });
@@ -42,7 +42,7 @@ describe('scrapeCastList', () => {
         getQuery.mockResolvedValueOnce({});
         getListSize.mockReturnValueOnce(NaN);
 
-        const result = await scrapeCastList(jobListing);
+        const result = await scrapeCastListFromJob(jobListing);
 
         expect(result).toEqual({ success: false, message: 'Scraping failed' });
         expect(consoleError).toHaveBeenCalledWith(expect.any(Error), "failed to get scraping list", false);
@@ -52,7 +52,7 @@ describe('scrapeCastList', () => {
         getQuery.mockResolvedValueOnce({});
         getListSize.mockReturnValueOnce(MAX_CAST_LIST_SIZE + 1);
 
-        const result = await scrapeCastList(jobListing);
+        const result = await scrapeCastListFromJob(jobListing);
 
         expect(result).toEqual({ success: false, message: 'Scraping failed' });
         expect(consoleError).toHaveBeenCalledWith(expect.any(Error), "failed to get scraping list", false);
@@ -70,7 +70,7 @@ describe('scrapeCastList', () => {
         getQuery.mockResolvedValueOnce({});
         getCastList.mockReturnValueOnce([{ code: 'cast3', areaCode: 'A1304', groupCode: 'group1', reservationUrl: 'url3' }]);
 
-        const result = await scrapeCastList(jobListing);
+        const result = await scrapeCastListFromJob(jobListing);
 
         expect(result).toEqual({ success: true, message: 'Scraping completed', listSize: 3 });
     });
@@ -81,7 +81,7 @@ describe('scrapeCastList', () => {
         getPagingList.mockReturnValue([]);
         getCastList.mockReturnValue([]);
 
-        const result = await scrapeCastList(jobListing);
+        const result = await scrapeCastListFromJob(jobListing);
 
         expect(result).toEqual({ success: false, message: 'Scraping failed' });
     });
@@ -92,7 +92,7 @@ describe('scrapeCastList', () => {
         getPagingList.mockReturnValue([]);
         getCastList.mockReturnValue(Array(MAX_CAST_LIST_SIZE).fill({ code: 'cast', areaCode: 'A1304', groupCode: 'group' }));
 
-        const result = await scrapeCastList(jobListing);
+        const result = await scrapeCastListFromJob(jobListing);
 
         expect(result).toEqual({ success: true, message: 'Scraping completed', listSize: MAX_CAST_LIST_SIZE });
     });
@@ -100,7 +100,7 @@ describe('scrapeCastList', () => {
     it('handles getQuery throwing an error', async () => {
         getQuery.mockRejectedValue(new Error('Network error'));
 
-        const result = await scrapeCastList(jobListing);
+        const result = await scrapeCastListFromJob(jobListing);
 
         expect(result).toEqual({ success: false, message: 'Scraping failed' });
         expect(consoleError).toHaveBeenCalledWith(expect.any(Error), "failed to get scraping list", false);
@@ -135,7 +135,7 @@ describe('scrapeCastList', () => {
         });
 
         it('processes cast list and creates job reservation rates', async () => {
-            await scrapeCastList(jobListing);
+            await scrapeCastListFromJob(jobListing);
 
             expect(getCastList).toHaveBeenCalled();
             expect(prisma.$transaction).toHaveBeenCalledTimes(mockCastList.length);
@@ -165,7 +165,7 @@ describe('scrapeCastList', () => {
         it('handles empty cast list', async () => {
             getCastList.mockReturnValue([]);
 
-            const result = await scrapeCastList(jobListing);
+            const result = await scrapeCastListFromJob(jobListing);
 
             expect(result).toEqual({ success: false, message: 'Scraping failed' });
             expect(consoleError).toHaveBeenCalledWith(expect.any(Error), "failed to get scraping list", false);
@@ -175,7 +175,7 @@ describe('scrapeCastList', () => {
             const mockError = new Error('Transaction failed');
             prisma.$transaction.mockRejectedValue(mockError);
 
-            await scrapeCastList(jobListing);
+            await scrapeCastListFromJob(jobListing);
 
             expect(consoleLog).toHaveBeenCalledWith(expect.stringContaining("[Alert] fail to save at jobListing:"));
             expect(consoleLog).toHaveBeenCalledWith(expect.any(Object)); // cast object logging

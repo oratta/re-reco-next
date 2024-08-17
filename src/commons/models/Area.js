@@ -15,3 +15,20 @@ export async function addArea({name, code}) {
         throw error;
     }
 }
+
+export async function createIfNot({name, code}) {
+    try{
+        const area = await prisma.area.upsert({
+            where: {code: code},
+            update: {},
+            create: {
+                name: name,
+                code: code,
+            },
+        })
+        return area;
+    }catch (error){
+        consoleError(error, "failed to create area", false);
+        throw error;
+    }
+}

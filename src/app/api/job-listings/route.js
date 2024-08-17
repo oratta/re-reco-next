@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/commons/libs/prisma';
-import createAndRunJobList from "@/features/listingCast/services/createAndRunJobListing";
+import {runJobList, createJobListing} from "@/features/listingCast/services/JobListingsService";
 import {consoleError} from "@/commons/utils/log";
 import {getJobListingsForAction} from "@/features/executeJobReRe/services/getJobListingsForAction";
 import {getWebParameter} from "@/commons/utils/api";
@@ -12,7 +12,8 @@ export async function POST(request, {params}) {
         const body = await request.json();
         const { areaCode, targetDate, condition } = body;
 
-        const jobListing = await createAndRunJobList({areaCode, targetDate, condition});
+        let jobListing = await createJobListing({areaCode, targetDate, condition});
+        jobListing = await runJobList(jobListing);
 
         return NextResponse.json(jobListing, { status: 201 });
     } catch (error) {

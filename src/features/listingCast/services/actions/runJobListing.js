@@ -1,5 +1,5 @@
 import prisma from "@/commons/libs/prisma";
-import {scrapeCastList} from "@/features/listingCast/services/actions/scrapeCastList";
+import {scrapeCastListFromJob} from "@/features/listingCast/services/actions/scrapeAndSaveReserveInfo";
 import * as JobListing  from "@/commons/models/JobListing";
 
 export default async function runJobListing(job=null) {
@@ -8,7 +8,7 @@ export default async function runJobListing(job=null) {
 
     //TODO Implement Job task
     try{
-        const {listSize} = await scrapeCastList(job);
+        const {listSize} = await scrapeCastListFromJob(job);
         job = await JobListing.saveComplete(jobId, listSize);
     }catch(error){
         console.log(error);

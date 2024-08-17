@@ -2,7 +2,7 @@ import prisma from "@/commons/libs/prisma";
 import runJobListing from "@/features/listingCast/services/actions/runJobListing";
 import {consoleError} from "@/commons/utils/log";
 
-export default async function createAndRunJobList({areaCode, targetDate, condition}) {
+export async function createJobListing({areaCode, targetDate, condition}) {
     let jobListing = {};
     try{
         jobListing = await prisma.jobListing.create({
@@ -18,8 +18,11 @@ export default async function createAndRunJobList({areaCode, targetDate, conditi
         consoleError(error, "failed to create jobListing", false);
         throw error;
     }
+    return jobListing;
+}
 
-// runJobを非同期で実行し、その結果を待つ
+export async function runJobList(jobListing) {
+    // runJobを非同期で実行し、その結果を待つ
     try{
         const result = await runJobListing(jobListing);
         return result;

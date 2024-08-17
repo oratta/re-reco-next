@@ -5,17 +5,32 @@ import { SearchCode } from 'lucide-react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import ConfirmOrderModal from './ConfirmOrderModal';
+import {fetchApi} from "@/commons/utils/api";
+import {list} from "postcss";
 
 export default function CreateOrder() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [orderList, setOrderList] = useState([]);
     const [isJumped, setIsJumped] = useState(false);
     const [isJustNow, setIsJustNow] = useState(false);
+    const [areaName, setAreaName] = useState('');
+    const [targetDate, setTargetDate] = useState('');
+    const [listSize, setListSize] = useState(0);
+    const [isValidOrder, setIsValidOrder] = useState(false);
 
     const { register, handleSubmit, formState: { errors } } = useForm();
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
+
         console.log(data);
+        const result = await fetchApi('/api/job-listings/confirm', 'POST', data);
+        console.log(result);
+
+        setAreaName(result.areaName);
+        setTargetDate(result.targetDate);
+        setListSize(result.listSize);
+        setIsValidOrder(result.isValid);
+
         setIsModalOpen(true);
     };
 
@@ -42,8 +57,8 @@ export default function CreateOrder() {
         if (!/^https?:\/\/.+/.test(value)) {
             return "Invalid URL format";
         }
-        if (!/A\d{4,}/.test(value)) {
-            return "URL must contain 'A' followed by at least 4 digits";
+        if (!/A\d{4}\/A\d{6,}/.test(value)) {
+            return "select a area detail";
         }
         return true;
     };
@@ -105,6 +120,10 @@ export default function CreateOrder() {
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
                 onConfirm={handleModalConfirm}
+                areaName={areaName}
+                targetDate={targetDate}
+                count={listSize}
+                isValidOrder={isValidOrder}
             />
         </div>
     );

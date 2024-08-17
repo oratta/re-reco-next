@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SearchCode } from 'lucide-react';
+import { SearchCode, ClipboardMinus } from 'lucide-react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import ConfirmOrderModal from './ConfirmOrderModal';
@@ -10,7 +10,12 @@ import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 
 export default function CreateOrder() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [orderList, setOrderList] = useState([]);
+    const [orderList, setOrderList] = useState([{
+        name: "長岡市",
+        targetDate: "2024/08/17",
+        listSize: 50,
+        status: "running",
+    }]);
     const [isJumped, setIsJumped] = useState(false);
     const [isJustNow, setIsJustNow] = useState(false);
     const [areaName, setAreaName] = useState('');
@@ -22,7 +27,6 @@ export default function CreateOrder() {
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const onSubmit = async (data) => {
-
         console.log(data);
         const result = await fetchApi('/api/job-listings/confirm', 'POST',setIsLoading, data);
         console.log(result);
@@ -46,9 +50,10 @@ export default function CreateOrder() {
 
     const handleJump = () => {
         setIsJumped(true);
-        const baseUrl = 'https://www.cityheaven.net/tokyo/girl-list/typ102-typ103-typ202-typ203-typ204-typ304-typ305-typ306-typ307';
+        const baseUrl = 'https://www.cityheaven.net/tokyo/A1317/A131703/girl-list/typ102-typ103-typ202-typ203-typ204-typ304-typ305-typ306-typ307';
         const url = isJustNow ? baseUrl + 'play1-play10-play20-play30/' : baseUrl;
         window.open(url, '_blank');
+
     };
 
     const validateUrl = (value) => {
@@ -107,10 +112,20 @@ export default function CreateOrder() {
                 )}
                 {orderList.length > 0 && (
                     <div>
-                        <h2 className="text-xl font-semibold mb-2">Order List</h2>
+                        <h2 className="text-xl font-semibold mb-2">
+                            <ClipboardMinus />
+                            Order List
+                        </h2>
                         <div className="grid grid-cols-2 gap-4">
                             {orderList.map((order) => (
-                                <div key={order.id} className="border p-2 rounded-md">{order.name}</div>
+                                <div key={order.id} className="border p-2 rounded-md  bg-gray-50">
+                                    <ul>
+                                        <li>{order.name}</li>
+                                        <li>{order.targetDate}</li>
+                                        <li>{order.listSize}</li>
+                                        <li>{order.status}</li>
+                                    </ul>
+                                </div>
                             ))}
                         </div>
                     </div>

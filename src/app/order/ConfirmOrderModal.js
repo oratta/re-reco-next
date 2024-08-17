@@ -1,7 +1,6 @@
 import React from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { UserCircleIcon } from '@heroicons/react/24/solid';
 import Image from "next/image";
 
 export default function ConfirmOrderModal({ isOpen, onClose, onConfirm, areaName, targetDate, count, isValidOrder }) {
@@ -62,7 +61,7 @@ export default function ConfirmOrderModal({ isOpen, onClose, onConfirm, areaName
                                                 onClick={onConfirm}
                                                 disabled={!isValidOrder}
                                             >
-                                                Confirm
+                                                Create Order
                                             </button>
                                         </div>
                                     </div>

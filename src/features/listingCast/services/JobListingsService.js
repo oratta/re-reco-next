@@ -1,13 +1,14 @@
 import prisma from "@/commons/libs/prisma";
 import runJobListing from "@/features/listingCast/services/actions/runJobListing";
 import {consoleError} from "@/commons/utils/log";
+import {STATUS} from "@/commons/models/JobListing";
 
 export async function createJobListing({areaCode, targetDate, condition}) {
     let jobListing = {};
     try{
         jobListing = await prisma.jobListing.create({
             data: {
-                status: 'pending',
+                status: STATUS.LIST_PENDING,
                 areaCode,
                 targetDate: new Date(targetDate),
                 condition,

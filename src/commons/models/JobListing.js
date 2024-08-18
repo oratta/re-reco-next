@@ -48,3 +48,30 @@ export async function saveComplete(id, listSize){
     });
     return job;
 }
+
+export async function startBulkExecute(jobListingId){
+    const job = await prisma.jobListing.update({
+        where: {id: jobListingId},
+        data: {status: STATUS.EXEC_RUNNING}
+    });
+    return job;
+}
+
+export async function finishBulkExecute(jobListingId){
+    const job = await prisma.jobListing.update({
+        where: {id: jobListingId},
+        data: {status: STATUS.EXEC_COMPLETED}
+    });
+    return job;
+}
+
+export async function failBulkExecute(jobListingId, message){
+    const job = await prisma.jobListing.update({
+        where: {id: jobListingId},
+        data: {
+            status: STATUS.EXEC_FAILED,
+            result: message
+        }
+    });
+    return job;
+}

@@ -1,9 +1,9 @@
-import { bulkExecuteJobReservationRates, stopBulkExecuteJobReservationRates } from "@/features/executeJobReRe/services/bulkExecuteJobReservationRates";
+import { bulkExecuteJobReRe, stopBulkExecuteJobReservationRates } from "@/features/executeJobReRe/services/JobReservationRateService";
 
 export async function POST(req, { params }) {
     const { id } = params;
     try {
-        await bulkExecuteJobReservationRates(id);
+        await bulkExecuteJobReRe(id);
         return new Response(JSON.stringify({ message: 'Bulk execution started' }), { status: 200 });
     } catch (error) {
         console.error('Error executing bulk job reservation rates:', error);
@@ -31,7 +31,7 @@ export async function GET(req, { params }) {
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
             };
 
-            // Store the send function to use it in bulkExecuteJobReservationRates
+            // Store the send function to use it in bulkExecuteJobReRe
             globalThis.sseClients = globalThis.sseClients || {};
             globalThis.sseClients[id] = send;
 

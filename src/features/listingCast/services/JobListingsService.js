@@ -2,6 +2,7 @@ import prisma from "@/commons/libs/prisma";
 import runJobListing from "@/features/listingCast/services/actions/runJobListing";
 import {consoleError} from "@/commons/utils/log";
 import {STATUS} from "@/commons/models/JobListing";
+import * as JobReservationRateService from "@/features/executeJobReRe/services/JobReservationRateService";
 
 export async function createJobListing({areaCode, targetDate, condition}) {
     let jobListing = {};
@@ -29,6 +30,56 @@ export async function runJobList(jobListing) {
         return result;
     }catch (error) {
         consoleError(error, "failed to run jobListing", false);
+        throw error;
+    }
+}
+
+/**
+ * 同じjobListingを持つjobReservationRatesをバルクで実行する
+ * 実行前に、他に実行中のjobReservationRateがある場合はジョブを終了する
+ * 実行中のjobReservationRateが完了した場合は、待機しているjobReservationRateを実行する
+ * @param jobListing
+ * @returns {Promise<void>}
+ */
+export async function handleBulkExecute(jobListing){
+    try {
+        const isExecute = await prisma.jobListing.findOne({
+            where: {
+                id: jobListing.id,
+                status: STATUS.EXEC_RUNNING
+            },
+            select: {
+                status: true
+            }
+        });
+        if(isExecute){
+            consoleError("jobListing is already running", "failed to bulkExecuteJobReRe", false);
+            throw new Error("jobListing is already running");
+        }
+
+        await bulkExecuteJobReRe(jobListing.id);
+
+        const otherPendingJobList = await prisma.jobListing.find({
+            where: {
+                status: STATUS.LIST_COMPLETED,
+            }
+        });
+        if(otherPendingJobList?.id){
+            bulkExecuteJobReRe(otherPendingJobList.id).then(r => console.log("bulkExecuteJobReRe", r));
+        }
+    }catch(error){
+        consoleError(error, "failed to bulkExecuteJobReRe", false);
+        throw error;
+    }
+}
+
+async function bulkExecuteJobReRe(jobListingId) {
+    try{
+        //TODO
+        //jobListingのステータス変更処理をJobReRe側からぬく
+        await JobReservationRateService.bulkExecuteJobReRe(jobListing.id);
+    }catch(error){
+        consoleError(error, "failed to bulkExecuteJobReRe", false);
         throw error;
     }
 }

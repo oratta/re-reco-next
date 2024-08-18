@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/commons/libs/prisma';
-import {runJobList, createJobListing} from "@/features/listingCast/services/JobListingsService";
+import {runJobList, createJobListing, bulkExecuteJobReRe} from "@/features/listingCast/services/JobListingsService";
 import {consoleError} from "@/commons/utils/log";
 import {getJobListingsForAction} from "@/features/executeJobReRe/services/getJobListingsForAction";
 import {getWebParameter} from "@/commons/utils/api";
@@ -12,8 +12,14 @@ export async function POST(request, {params}) {
         const body = await request.json();
         const { areaCode, targetDate, condition } = body;
 
+        // JobListの作成は同期処理
         let jobListing = await createJobListing({areaCode, targetDate, condition});
         jobListing = await runJobList(jobListing);
+
+        //非同期でJobListの実行
+        //すでに実行中のジョブがある場合は待機に回る
+        //実行中のジョブが完了した場合は、待機しているジョブを実行する
+        bulkExecuteJobReRe(jobListing).then(r => console.log("bulkExecuteJobReRe", r));
 
         return NextResponse.json(jobListing, { status: 201 });
     } catch (error) {

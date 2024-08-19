@@ -59,9 +59,12 @@ export async function bulkExecuteJobReRe(jobListingId) {
                 jobCount++;
                 pendingCount--;
                 consoleLog(`Job ReservationRate ${jobCount}/${jobReReCount} finished: ${jobReRe.id}`);
-                if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-                    globalThis.sseClients[jobListingId]({ pendingCount });
-                }
+
+                globalThis.notifyAllClients({
+                    type: 'update',
+                    jobListingId,
+                    data: { pendingCount, jobCount, totalCount: jobReReCount }
+                });
             }
         }
         await finishBulkExecute(jobListingId);

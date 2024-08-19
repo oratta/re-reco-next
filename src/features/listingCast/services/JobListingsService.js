@@ -83,3 +83,15 @@ async function bulkExecuteJobReRe(jobListingId) {
         throw error;
     }
 }
+
+export async function getActiveJobListings() {
+    const result = await prisma.jobListing.findMany({
+        where: {
+            status: {
+                in: ['EXEC_RUNNING', 'LIST_COMPLETED']
+            }
+        }
+    });
+
+    return result;
+}

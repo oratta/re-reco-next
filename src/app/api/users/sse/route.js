@@ -1,10 +1,12 @@
 import crypto from 'crypto';
 import { getActiveJobListings } from "@/features/listingCast/services/JobListingsService";
+import { consoleLog } from "@/commons/utils/log";
 
 const clients = new Map();
 const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const CLIENT_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 const MAX_CONNECTIONS = 20; // 最大同時接続数
+const PING_INTERVAL = 30000; // 30 seconds
 
 function generateClientId(req) {
     const userAgent = req.headers.get('user-agent') || '';
@@ -18,18 +20,45 @@ function generateClientId(req) {
 
 function cleanupClients() {
     const now = Date.now();
+    let cleanedCount = 0;
     for (const [clientId, client] of clients.entries()) {
         if (now - client.lastActivityTime > CLIENT_TIMEOUT) {
             client.controller.close();
             clients.delete(clientId);
+            cleanedCount++;
         }
     }
+    consoleLog(`Cleaned up ${cleanedCount} inactive clients. Active clients: ${clients.size}`);
 }
 
-setInterval(cleanupClients, CLEANUP_INTERVAL);
+function startCleanupInterval() {
+    return setInterval(cleanupClients, CLEANUP_INTERVAL);
+}
+
+function startPingInterval() {
+    return setInterval(() => {
+        const now = Date.now();
+        clients.forEach((client, clientId) => {
+            try {
+                client.send({ type: 'ping', timestamp: now });
+                client.lastActivityTime = now;
+            } catch (error) {
+                consoleLog(`Error pinging client ${clientId}:`, error);
+                clients.delete(clientId);
+            }
+        });
+        consoleLog(`Pinged ${clients.size} clients`);
+    }, PING_INTERVAL);
+}
+
+let cleanupInterval = startCleanupInterval();
+let pingInterval = startPingInterval();
 
 export async function GET(req) {
+    consoleLog(`New SSE connection request. Current connections: ${clients.size}`);
+
     if (clients.size >= MAX_CONNECTIONS) {
+        consoleLog(`Maximum connections (${MAX_CONNECTIONS}) reached. Rejecting new connection.`);
         return new Response(JSON.stringify({ error: 'Maximum number of connections reached. Please try again later.' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' }
@@ -37,6 +66,7 @@ export async function GET(req) {
     }
 
     const clientId = generateClientId(req);
+    consoleLog(`Generated client ID: ${clientId}`);
 
     const stream = new ReadableStream({
         async start(controller) {
@@ -46,27 +76,42 @@ export async function GET(req) {
             };
 
             if (clients.has(clientId)) {
-                const oldClient = clients.get(clientId);
-                oldClient.controller.close();
+                consoleLog(`Existing client found with ID ${clientId}. Updating connection.`);
+                const existingClient = clients.get(clientId);
+                existingClient.send = send;
+                existingClient.controller = controller;
+                existingClient.lastActivityTime = Date.now();
+            } else {
+                clients.set(clientId, {
+                    send,
+                    controller,
+                    lastActivityTime: Date.now()
+                });
+                consoleLog(`New client ${clientId} connected. Total clients: ${clients.size}`);
             }
 
-            clients.set(clientId, {
-                send,
-                controller,
-                lastActivityTime: Date.now()
-            });
-
             req.signal.addEventListener('abort', () => {
-                clients.delete(clientId);
-                controller.close();
+                // Only remove the client if this is the current controller
+                if (clients.get(clientId)?.controller === controller) {
+                    clients.delete(clientId);
+                    consoleLog(`Client ${clientId} disconnected. Remaining clients: ${clients.size}`);
+                }
             });
 
-            // Send initial data
-            const activeJobListings = await getActiveJobListings();
-            send({ type: 'initial', data: activeJobListings });
+            try {
+                // Send initial data
+                const activeJobListings = await getActiveJobListings();
+                send({ type: 'initial', data: activeJobListings });
+                consoleLog(`Sent initial data to client ${clientId}`);
 
-            // Send connection success message
-            send({ type: 'connection', status: 'success', message: 'Connected successfully' });
+                // Send connection success message
+                send({ type: 'connection', status: 'success', message: 'Connected successfully' });
+                consoleLog(`Sent connection success message to client ${clientId}`);
+            } catch (error) {
+                consoleLog(`Error sending initial data to client ${clientId}:`, error);
+                send({ type: 'error', message: 'Failed to fetch initial data' });
+                controller.close();
+            }
         }
     });
 
@@ -81,28 +126,24 @@ export async function GET(req) {
 
 globalThis.notifyAllClients = (data) => {
     const now = Date.now();
+    let notifiedCount = 0;
     clients.forEach((client, clientId) => {
         try {
             client.send(data);
             client.lastActivityTime = now;
+            notifiedCount++;
         } catch (error) {
-            console.error(`Error sending message to client ${clientId}:`, error);
+            consoleLog(`Error sending message to client ${clientId}:`, error);
             clients.delete(clientId);
         }
     });
+    consoleLog(`Notified ${notifiedCount} clients with data:`, data);
 };
 
-globalThis.pingClients = () => {
-    const now = Date.now();
-    clients.forEach((client, clientId) => {
-        try {
-            client.send({ type: 'ping' });
-            client.lastActivityTime = now;
-        } catch (error) {
-            console.error(`Error pinging client ${clientId}:`, error);
-            clients.delete(clientId);
-        }
-    });
-};
-
-setInterval(globalThis.pingClients, 30000); // Ping every 30 seconds
+// Ensure cleanup and ping intervals are cleared when the server shuts down
+process.on('SIGINT', () => {
+    clearInterval(cleanupInterval);
+    clearInterval(pingInterval);
+    consoleLog('Cleared cleanup and ping intervals');
+    process.exit(0);
+});

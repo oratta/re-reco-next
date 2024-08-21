@@ -1,3 +1,8 @@
+/**
+ * 旧logger
+ * 互換性でとってあるだけ
+ * //TODO リファクタして削除
+ */
 export function consoleLog(msg) {
     const error = new Error();
     const stack = error.stack.split('\n')[2]; // 0:Error 1:このメソッド 2:呼び出し元

@@ -5,6 +5,13 @@ const LOG_LEVELS = {
     ERROR: 3,
 };
 
+const COLORS = {
+    DEBUG: '#7f8c8d',
+    INFO: '#2980b9',
+    WARN: '#f39c12',
+    ERROR: '#c0392b'
+};
+
 class ClientConsole {
     constructor() {
         this.debugMode = false;
@@ -15,19 +22,26 @@ class ClientConsole {
         this.debugMode = isDebug;
         if (isDebug && process.env.NODE_ENV !== 'production') {
             this.currentLevel = LOG_LEVELS.DEBUG;
-            console.log('Debug mode enabled. Log level set to DEBUG.');
+            console.log('%cDebug mode enabled. Log level set to DEBUG.', 'color: #27ae60; font-weight: bold;');
         } else {
             this.currentLevel = process.env.NODE_ENV === 'production' ? LOG_LEVELS.WARN : LOG_LEVELS.INFO;
-            console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}` + `\nisDebug: ${isDebug}`);
-            console.log(`Debug mode disabled. Log level set to ${Object.keys(LOG_LEVELS)[this.currentLevel]}.`);
+            console.log(`%cprocess.env.NODE_ENV: ${process.env.NODE_ENV}\nisDebug: ${isDebug}`, 'color: #7f8c8d;');
+            console.log(`%cDebug mode disabled. Log level set to ${Object.keys(LOG_LEVELS)[this.currentLevel]}.`, 'color: #7f8c8d;');
         }
     }
 
     formatMessage(level, message) {
         const timestamp = new Date().toISOString();
         const caller = this.getCaller();
-        return `[${timestamp}] [${level.toUpperCase()}]\n${caller}\n${message}`;
+        const color = COLORS[level];
+        return [
+            `%c[${timestamp}] [${level}]%c ${caller}%c\n${message}`,
+            `color: ${color}; font-weight: bold;`,
+            'color: #7f8c8d;',
+            'color: #000000; font-weight: bold;'
+        ];
     }
+
 
     getCaller() {
         const err = new Error();
@@ -35,7 +49,6 @@ class ClientConsole {
         const frames = err.stack.split('\n');
         let callerFrame;
 
-        // アプリケーションコードのフレームを探す
         for (let i = 1; i < frames.length; i++) {
             const frame = frames[i];
             if (this.isApplicationFrame(frame)) {
@@ -56,7 +69,6 @@ class ClientConsole {
             }
         }
 
-        // フォールバック: 完全なスタックトレース行を返す
         return callerFrame.trim();
     }
 
@@ -79,8 +91,8 @@ class ClientConsole {
 
     log(level, message, ...args) {
         if (level >= this.currentLevel) {
-            const formattedMessage = this.formatMessage(Object.keys(LOG_LEVELS)[level], message);
-            console.log(formattedMessage, ...args);
+            const [formattedMessage, ...styles] = this.formatMessage(Object.keys(LOG_LEVELS)[level], message);
+            console.log(formattedMessage, ...styles, ...args);
         }
     }
 

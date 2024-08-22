@@ -8,6 +8,9 @@ import ConfirmOrderModal from './ConfirmOrderModal';
 import { fetchApi } from "@/commons/utils/api";
 import { useLoadingSetter } from "@/commons/components/contexts/LoadingContext";
 import { useSSEConnection } from './useSSEConnection';
+import {useAreas} from "@/commons/components/contexts/AreasContext";
+import {parseUrl} from "@/app/api/job-listings/confirm/confirmJobList";
+import clientConsole from "@/commons/utils/clientConsole";
 
 export default function CreateOrder() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,7 +20,9 @@ export default function CreateOrder() {
     const [targetDate, setTargetDate] = useState('');
     const [listSize, setListSize] = useState(0);
     const [isValidOrder, setIsValidOrder] = useState(false);
+    const [url, setUrl] = useState('');
     const setIsLoading = useLoadingSetter();
+    const areas = useAreas();
 
     const { orderList, connectionError } = useSSEConnection();
 
@@ -32,6 +37,7 @@ export default function CreateOrder() {
         setTargetDate(result.targetDate);
         setListSize(result.listSize);
         setIsValidOrder(result.isValid);
+        setUrl(data.url);
 
         setIsModalOpen(true);
     };
@@ -40,14 +46,16 @@ export default function CreateOrder() {
         setIsModalOpen(false);
     };
 
-    const handleModalConfirm = () => {
+    const handleModalConfirm = async () => {
+        const {areaCode, targetDate, condition} = parseUrl(url);
+        clientConsole.info("parameter: ", {areaCode, targetDate, condition});
+        await fetchApi('api/job-listings', 'POST', setIsLoading, { areaCode, targetDate, condition });
         setIsModalOpen(false);
-        // Note: fetchOrderList is no longer needed as orderList is updated via SSE
     };
 
     const handleJump = () => {
         setIsJumped(true);
-        const baseUrl = 'https://www.cityheaven.net/tokyo/A1317/A131703/girl-list/typ102-typ103-typ202-typ203-typ204-typ304-typ305-typ306-typ307';
+        const baseUrl = 'https://www.cityheaven.net/tokyo/A1317/A131703/girl-list/typ102-typ103-typ202-typ203-typ204-typ304-typ305-typ306-typ307/';
         const url = isJustNow ? baseUrl + 'play1-play10-play20-play30/' : baseUrl;
         window.open(url, '_blank');
     };

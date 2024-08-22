@@ -1,7 +1,9 @@
-import {confirmCastList, scrapeCastListInfo} from "@/features/listingCast/services/actions/scrapeAndSaveReserveInfo";
+import {scrapeCastListInfo} from "@/features/listingCast/services/actions/scrapeAndSaveReserveInfo";
 import {getQuery} from "@/commons/utils/cheerioUtil";
 import * as Area from "@/commons/models/Area";
 import {format} from "date-fns";
+
+export const FLAG_IS_NOW = 'Now';
 
 export async function getJobListInfo(url){
     const $ = await getQuery(url);
@@ -11,7 +13,7 @@ export async function getJobListInfo(url){
     return {
         areaName,
         areaCodes,
-        targetDate: isNow ? 'Now' : targetDate,
+        targetDate: isNow ? FLAG_IS_NOW : targetDate,
         listSize
     }
 }
@@ -33,23 +35,33 @@ export async function areasCreateIfNot(areaName, areaCodes){
     }
 }
 
-function parseUrl(url){
+export function parseUrl(url) {
     const parsedUrl = new URL(url);
     const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
 
-    const areaCodes = new Set();
+    const areaCodes = [];
     let targetDate = '';
     let isNow = false;
 
     // Extract area codes
     const areaCodeParts = pathParts.slice(0, 3);
+    const baseAreaCode = areaCodeParts.join('/');
     if (areaCodeParts.length === 3) {
-        areaCodes.add(areaCodeParts.join('/'));
+        const lastPart = areaCodeParts[2];
+        if (lastPart.includes('-')) {
+            // Handle multiple area codes
+            const subAreas = lastPart.split('-');
+            subAreas.forEach(subArea => {
+                areaCodes.push(`${areaCodeParts[0]}/${areaCodeParts[1]}/${subArea}`);
+            });
+        } else {
+            areaCodes.push(baseAreaCode);
+        }
     }
 
-    // Check for additional area code
+    // Check for invalid additional area code
     if (pathParts[3] && pathParts[3].startsWith('A')) {
-        areaCodes.add([...areaCodeParts, pathParts[3]].join('/'));
+        throw new Error('invalid area code format');
     }
 
     // Extract date or set to current date if not present
@@ -62,13 +74,17 @@ function parseUrl(url){
         if (playPart) {
             targetDate = format(new Date(), 'yyyyMMdd');
             isNow = true;
+        } else {
+            throw new Error('you have to set play date or setting Now');
         }
     }
 
     return {
-        areaCodes: Array.from(areaCodes),
+        areaCodes,
         targetDate,
-        isNow
+        isNow,
+        condition: url,
+        areaCode: baseAreaCode,
     };
 }
 

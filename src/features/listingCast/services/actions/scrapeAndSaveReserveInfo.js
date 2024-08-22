@@ -139,7 +139,5 @@ async function createJobReserveRate($, jobListingId) {
 }
 
 function getUrl(jobListing) {
-    // return "https://www.cityheaven.net/tokyo/A1304/A130401-A130404/girl-list/";
-    consoleLog(jobListing);
-    return `${URL_BASE_CAST_LIST}/${jobListing.areaCode}/${jobListing.condition}/${formatDate(jobListing.targetDate,"'date'yyyyMMdd")}/`;
+    return jobListing.condition;
 }

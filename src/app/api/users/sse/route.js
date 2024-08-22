@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { getActiveJobListings } from "@/features/listingCast/services/JobListingsService";
 import { consoleLog } from "@/commons/utils/log";
+import logger, {debugMsg, infoMsg} from "@/commons/utils/logger";
 
 const clients = new Map();
 const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -47,7 +48,7 @@ function startPingInterval() {
                 clients.delete(clientId);
             }
         });
-        consoleLog(`Pinged ${clients.size} clients`);
+        debugMsg(`Pinged ${clients.size} clients`);
     }, PING_INTERVAL);
 }
 
@@ -102,7 +103,7 @@ export async function GET(req) {
                 // Send initial data
                 const activeJobListings = await getActiveJobListings();
                 send({ type: 'initial', data: activeJobListings });
-                consoleLog(`Sent initial data to client ${clientId}`);
+                consoleLog('Sending initial job listings:', activeJobListings);
 
                 // Send connection success message
                 send({ type: 'connection', status: 'success', message: 'Connected successfully' });

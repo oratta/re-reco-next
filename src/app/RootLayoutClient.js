@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from "next/image";
 import SplashScreen from "@/commons/components/elements/SplashScreen";
 import { Menu } from 'lucide-react';
+import clientConsole from "@/commons/utils/clientConsole";
 
 export default function RootLayoutClient({children}) {
     const [isLoading, setIsLoading] = useState(true);
@@ -17,6 +18,15 @@ export default function RootLayoutClient({children}) {
         }, 2000);
 
         return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const debugMode = urlParams.get('debug') === 'true';
+        clientConsole.info(urlParams);
+        clientConsole.setDebugMode(debugMode);
+
+        clientConsole.debug('Debug mode set:', debugMode);
     }, []);
 
     if (isLoading) {

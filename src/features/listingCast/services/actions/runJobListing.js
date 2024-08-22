@@ -6,7 +6,6 @@ export default async function runJobListing(job=null) {
     const jobId = job.id;
     job = await JobListing.saveRunning(jobId)
 
-    //TODO Implement Job task
     try{
         const {listSize} = await scrapeCastListFromJob(job);
         job = await JobListing.saveComplete(jobId, listSize);

@@ -1,17 +1,21 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/commons/libs/prisma';
 import {runJobList, createJobListing, bulkExecuteJobReRe} from "@/features/listingCast/services/JobListingsService";
-import {consoleError} from "@/commons/utils/log";
+import {consoleError, consoleLog} from "@/commons/utils/log";
 import {getJobListingsForAction} from "@/features/executeJobReRe/services/getJobListingsForAction";
 import {getWebParameter} from "@/commons/utils/api";
+import {FLAG_IS_NOW} from "@/app/api/job-listings/confirm/confirmJobList";
 
 export async function POST(request, {params}) {
     console.log("request post api/job-listings");
     try {
         // リクエストボディを一度だけ読み取り、変数に保存
         const body = await request.json();
-        const { areaCode, targetDate, condition } = body;
-
+        const { areaCode, condition } = body;
+        let { targetDate} = body;
+        if (targetDate === FLAG_IS_NOW) {
+            targetDate = new Date();
+        }
         // JobListの作成は同期処理
         let jobListing = await createJobListing({areaCode, targetDate, condition});
         jobListing = await runJobList(jobListing);

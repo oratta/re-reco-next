@@ -3,21 +3,25 @@ import runJobListing from "@/features/listingCast/services/actions/runJobListing
 import {consoleError} from "@/commons/utils/log";
 import {STATUS} from "@/commons/models/JobListing";
 import * as JobReservationRateService from "@/features/executeJobReRe/services/JobReservationRateService";
+import {debugMsg, errorMsg, infoMsg} from "@/commons/utils/logger";
 
 export async function createJobListing({areaCode, targetDate, condition}) {
     let jobListing = {};
     try{
+        console.log("parameter: ", {areaCode, targetDate, condition});
         jobListing = await prisma.jobListing.create({
             data: {
                 status: STATUS.LIST_PENDING,
                 areaCode,
-                targetDate: new Date(targetDate),
+                targetDate: new Date(targetDate.match(/^\d{4}-\d{2}-\d{2}$/)
+                    ? targetDate
+                    : targetDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')),
                 condition,
                 listCount: 0, // This will be updated after scraping
             },
         });
     }catch(error){
-        consoleError(error, "failed to create jobListing", false);
+        errorMsg( "failed to create jobListing");
         throw error;
     }
     return jobListing;
@@ -73,11 +77,11 @@ export async function handleBulkExecute(jobListing){
     }
 }
 
-async function bulkExecuteJobReRe(jobListingId) {
+export async function bulkExecuteJobReRe(jobListingId) {
     try{
         //TODO
         //jobListingのステータス変更処理をJobReRe側からぬく
-        await JobReservationRateService.bulkExecuteJobReRe(jobListing.id);
+        await JobReservationRateService.bulkExecuteJobReRe(jobListingId);
     }catch(error){
         consoleError(error, "failed to bulkExecuteJobReRe", false);
         throw error;

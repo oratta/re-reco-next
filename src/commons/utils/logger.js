@@ -27,19 +27,19 @@ if (process.env.NODE_ENV !== 'production') {
 export default logger;
 
 // Helper functions
-export function debug(message, meta = {}) {
+export function debugMsg(message, meta = {}) {
     logger.debug(message, { ...meta, caller: getCaller() });
 }
 
-export function info(message, meta = {}) {
+export function infoMsg(message, meta = {}) {
     logger.info(message, { ...meta, caller: getCaller() });
 }
 
-export function warn(message, meta = {}) {
+export function warnMsg(message, meta = {}) {
     logger.warn(message, { ...meta, caller: getCaller() });
 }
 
-export function error(message, meta = {}) {
+export function errorMsg(message, meta = {}) {
     logger.error(message, { ...meta, caller: getCaller() });
 }
 

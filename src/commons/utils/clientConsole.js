@@ -15,24 +15,66 @@ class ClientConsole {
         this.debugMode = isDebug;
         if (isDebug && process.env.NODE_ENV !== 'production') {
             this.currentLevel = LOG_LEVELS.DEBUG;
+            console.log('Debug mode enabled. Log level set to DEBUG.');
+        } else {
+            this.currentLevel = process.env.NODE_ENV === 'production' ? LOG_LEVELS.WARN : LOG_LEVELS.INFO;
+            console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}` + `\nisDebug: ${isDebug}`);
+            console.log(`Debug mode disabled. Log level set to ${Object.keys(LOG_LEVELS)[this.currentLevel]}.`);
         }
     }
 
     formatMessage(level, message) {
         const timestamp = new Date().toISOString();
         const caller = this.getCaller();
-        return `[${timestamp}] [${level.toUpperCase()}] ${caller}: ${message}`;
+        return `[${timestamp}] [${level.toUpperCase()}]\n${caller}\n${message}`;
     }
 
     getCaller() {
         const err = new Error();
         Error.captureStackTrace(err);
-        const callerFrame = err.stack.split('\n')[3];
-        const match = callerFrame.match(/at\s+(.*)\s+\((.*):(\d+):(\d+)\)/);
-        if (match) {
-            return `${match[1]} (${match[2]}:${match[3]})`;
+        const frames = err.stack.split('\n');
+        let callerFrame;
+
+        // アプリケーションコードのフレームを探す
+        for (let i = 1; i < frames.length; i++) {
+            const frame = frames[i];
+            if (this.isApplicationFrame(frame)) {
+                callerFrame = frame;
+                break;
+            }
         }
-        return callerFrame;
+
+        if (!callerFrame) return 'unknown';
+
+        const match = callerFrame.match(/at\s+(.+?)\s+\((.+)\)/);
+        if (match) {
+            const [, functionName, fullPath] = match;
+            const pathMatch = fullPath.match(/\.\/src\/(.+?):(\d+):(\d+)/);
+            if (pathMatch) {
+                const [, filePath, lineNumber] = pathMatch;
+                return `${functionName} (${filePath}:${lineNumber})`;
+            }
+        }
+
+        // フォールバック: 完全なスタックトレース行を返す
+        return callerFrame.trim();
+    }
+
+    isApplicationFrame(frame) {
+        return frame.includes('webpack-internal:') &&
+            frame.includes('/src/') &&
+            !this.isLibraryFrame(frame);
+    }
+
+    isLibraryFrame(frame) {
+        const libraryPatterns = [
+            'node_modules',
+            'react-dom',
+            'react-refresh',
+            'next/dist',
+            'clientConsole.js'
+        ];
+        return libraryPatterns.some(pattern => frame.includes(pattern));
     }
 
     log(level, message, ...args) {

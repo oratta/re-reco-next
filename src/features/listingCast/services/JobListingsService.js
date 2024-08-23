@@ -92,7 +92,7 @@ export async function getActiveJobListings() {
     const result = await prisma.jobListing.findMany({
         where: {
             status: {
-                in: ['EXEC_RUNNING', 'LIST_COMPLETED']
+                in: [STATUS.EXEC_RUNNING, STATUS.LIST_COMPLETED]
             }
         }
     });

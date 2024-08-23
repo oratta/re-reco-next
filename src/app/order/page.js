@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import { SearchCode, ClipboardList, RotateCw, AlertCircle, Calendar, CheckCircle, Clock, XCircle } from 'lucide-react';
+import React, {useState} from 'react';
+import {AlertCircle, Calendar, CheckCircle, ClipboardList, Clock, RotateCw, SearchCode, XCircle} from 'lucide-react';
 import Image from 'next/image';
-import { useForm } from 'react-hook-form';
+import {useForm} from 'react-hook-form';
 import ConfirmOrderModal from './ConfirmOrderModal';
-import { fetchApi } from "@/commons/utils/api";
-import { useLoadingSetter } from "@/commons/components/contexts/LoadingContext";
-import { useSSEConnection } from './useSSEConnection';
+import {fetchApi} from "@/commons/utils/api";
+import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
+import {useSSEConnection} from './useSSEConnection';
 import {useAreas} from "@/commons/components/contexts/AreasContext";
 import {parseUrl} from "@/app/api/job-listings/confirm/confirmJobList";
 import clientConsole from "@/commons/utils/clientConsole";
@@ -193,8 +193,8 @@ export default function CreateOrder() {
                                 {order.status === STATUS.EXEC_RUNNING && (
                                 <div className="mt-2">
                                     <progress
-                                        value={order.completeCount}
-                                        max={order.completeCount + order.pendingCount}
+                                        value={order.completeCount || 0}
+                                        max={(order.completeCount || 0) + (order.pendingCount || 0)}
                                         className="w-full"
                                     />
                                 </div>

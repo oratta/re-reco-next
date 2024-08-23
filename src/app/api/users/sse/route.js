@@ -1,7 +1,7 @@
 import crypto from 'crypto';
-import { getActiveJobListings } from "@/features/listingCast/services/JobListingsService";
-import { consoleLog } from "@/commons/utils/log";
-import logger, {debugMsg, infoMsg} from "@/commons/utils/logger";
+import {getActiveJobListings} from "@/features/listingCast/services/JobListingsService";
+import {consoleError, consoleLog} from "@/commons/utils/log";
+import {debugMsg} from "@/commons/utils/logger";
 
 const clients = new Map();
 const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -109,7 +109,7 @@ export async function GET(req) {
                 send({ type: 'connection', status: 'success', message: 'Connected successfully' });
                 consoleLog(`Sent connection success message to client ${clientId}`);
             } catch (error) {
-                consoleLog(`Error sending initial data to client ${clientId}:`, error);
+                consoleError(error, `Error sending initial data to client ${clientId}:`);
                 send({ type: 'error', message: 'Failed to fetch initial data' });
                 controller.close();
             }

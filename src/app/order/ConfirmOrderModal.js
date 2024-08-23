@@ -2,8 +2,13 @@ import React from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import Image from "next/image";
+import { CheckCircle, XCircle } from 'lucide-react';
 
-export default function ConfirmOrderModal({ isOpen, onClose, onConfirm, areaName, targetDate, count, isValidOrder }) {
+export default function ConfirmOrderModal({ isOpen, onClose, onConfirm, areaName, targetDate, count, isValidOrder, status, statusMessage }) {
+    const isConfirmState = status === 'confirm';
+    const isSuccessState = status === 'success';
+    const isErrorState = status === 'error';
+
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -42,30 +47,53 @@ export default function ConfirmOrderModal({ isOpen, onClose, onConfirm, areaName
                                         </div>
                                         <div className="mb-4">
                                             <p className="text-2xl font-bold text-center">{count}</p>
-                                            {isValidOrder ? (
+                                            {isConfirmState && isValidOrder && (
                                                 <p className="text-center text-gray-600">casts is available</p>
-                                            ) : (
-                                                <p className="text-red-500 text-sm mb-4">The number of casts exceeds the
-                                                    limit or 0</p>
                                             )}
-
+                                            {isConfirmState && !isValidOrder && (
+                                                <p className="text-red-500 text-sm mb-4">The number of casts exceeds the limit or 0</p>
+                                            )}
+                                            {(isSuccessState || isErrorState) && (
+                                                <p className={`text-center ${isSuccessState ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {statusMessage}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="mt-4 flex justify-center">
-                                            <button
-                                                type="button"
-                                                className={`inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
-                                                    isValidOrder
-                                                        ? 'bg-blue-100 text-blue-900 hover:bg-blue-200'
-                                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                }`}
-                                                onClick={onConfirm}
-                                                disabled={!isValidOrder}
-                                            >
-                                                Create Order
-                                            </button>
+                                            {isConfirmState ? (
+                                                <button
+                                                    type="button"
+                                                    className={`inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                                                        isValidOrder
+                                                            ? 'bg-blue-100 text-blue-900 hover:bg-blue-200'
+                                                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                    onClick={onConfirm}
+                                                    disabled={!isValidOrder}
+                                                >
+                                                    Create Order
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                                    onClick={onClose}
+                                                >
+                                                    Close
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
+                                {(isSuccessState || isErrorState) && (
+                                    <div className="mt-4 flex justify-center">
+                                        {isSuccessState ? (
+                                            <CheckCircle className="text-green-500" size={48} />
+                                        ) : (
+                                            <XCircle className="text-red-500" size={48} />
+                                        )}
+                                    </div>
+                                )}
                             </Dialog.Panel>
                         </Transition.Child>
                     </div>

@@ -21,6 +21,8 @@ export default function CreateOrder() {
     const [listSize, setListSize] = useState(0);
     const [isValidOrder, setIsValidOrder] = useState(false);
     const [url, setUrl] = useState('');
+    const [modalStatus, setModalStatus] = useState('confirm');
+    const [statusMessage, setStatusMessage] = useState('');
     const setIsLoading = useLoadingSetter();
     const areas = useAreas();
 
@@ -28,7 +30,7 @@ export default function CreateOrder() {
 
     const { register, handleSubmit, formState: { errors } } = useForm();
 
-    const onSubmit = async (data) => {
+    const handleCheck = async (data) => {
         console.log(data);
         const result = await fetchApi('/api/job-listings/confirm', 'POST', setIsLoading, data);
         console.log(result);
@@ -38,19 +40,32 @@ export default function CreateOrder() {
         setListSize(result.listSize);
         setIsValidOrder(result.isValid);
         setUrl(data.url);
-
+        setModalStatus('confirm');
         setIsModalOpen(true);
     };
 
     const handleModalClose = () => {
         setIsModalOpen(false);
+        setModalStatus('confirm');
     };
 
-    const handleModalConfirm = async () => {
-        const {areaCode, targetDate, condition} = parseUrl(url);
-        clientConsole.info("parameter: ", {areaCode, targetDate, condition});
-        await fetchApi('api/job-listings', 'POST', setIsLoading, { areaCode, targetDate, condition });
-        setIsModalOpen(false);
+    const handleCreateOrder = async () => {
+        try {
+            const {areaCode, targetDate, condition} = parseUrl(url);
+            clientConsole.info("parameter: ", {areaCode, targetDate, condition});
+            const response = await fetchApi('api/job-listings', 'POST', setIsLoading, { areaCode, targetDate, condition });
+
+            if (response.error) {
+                throw new Error(response.error);
+            }
+
+            setModalStatus('success');
+            setStatusMessage('Order created successfully!');
+        } catch (error) {
+            clientConsole.error("Failed to create order:", error);
+            setModalStatus('error');
+            setStatusMessage(error.message || 'Failed to create order. Please try again.');
+        }
     };
 
     const handleJump = () => {
@@ -121,7 +136,7 @@ export default function CreateOrder() {
                     </div>
                 </div>
                 {isJumped && (
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={handleSubmit(handleCheck)} className="space-y-4">
                         <div>
                             <input
                                 type="text"
@@ -160,11 +175,13 @@ export default function CreateOrder() {
             <ConfirmOrderModal
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
-                onConfirm={handleModalConfirm}
+                onConfirm={handleCreateOrder}
                 areaName={areaName}
                 targetDate={targetDate}
                 count={listSize}
                 isValidOrder={isValidOrder}
+                status={modalStatus}
+                statusMessage={statusMessage}
             />
         </div>
     );

@@ -5,6 +5,7 @@ import {AlertCircle, Calendar, CheckCircle, ClipboardList, Clock, RotateCw, Sear
 import Image from 'next/image';
 import {useForm} from 'react-hook-form';
 import ConfirmOrderModal from './ConfirmOrderModal';
+import OrderList from "@/app/order/OrderList";
 import {fetchApi} from "@/commons/utils/api";
 import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 import {useSSEConnection} from './useSSEConnection';
@@ -157,53 +158,54 @@ export default function CreateOrder() {
                     </form>
                 )}
             </div>
-            {orderList.length > 0 && (
-                <div className="mt-8 w-full">
-                    <h2 className="text-xl font-semibold mb-4 flex items-center">
-                        <ClipboardList className="mr-2" size={24} />
-                        Order List
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-                        {orderList.map((order) => (
-                            <div key={order.id} className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow duration-200">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h3 className="text-lg font-semibold">{order.areaName}</h3>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
-                            {order.status}
-                        </span>
-                                </div>
-                                <p className="text-sm text-gray-600 mb-2 flex items-center">
-                                    <Calendar className="mr-1" size={16} />
-                                    {new Date(order.targetDate).toLocaleDateString()}
-                                </p>
-                                <div className="flex justify-between text-sm">
-                                    <span className="flex items-center">
-                                        <CheckCircle className="mr-1" size={16} />
-                                        {order.completeCount}
-                                    </span>
-                                    <span className="flex items-center">
-                                        <Clock className="mr-1" size={16} />
-                                        {order.pendingCount}
-                                    </span>
-                                    <span className="flex items-center">
-                                        <XCircle className="mr-1" size={16} />
-                                        {order.failedCount}
-                                    </span>
-                                </div>
-                                {order.status === STATUS.EXEC_RUNNING && (
-                                <div className="mt-2">
-                                    <progress
-                                        value={order.completeCount || 0}
-                                        max={(order.completeCount || 0) + (order.pendingCount || 0)}
-                                        className="w-full"
-                                    />
-                                </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {/*{orderList.length > 0 && (*/}
+            {/*    <div className="mt-8 w-full">*/}
+            {/*        <h2 className="text-xl font-semibold mb-4 flex items-center">*/}
+            {/*            <ClipboardList className="mr-2" size={24} />*/}
+            {/*            Order List*/}
+            {/*        </h2>*/}
+            {/*        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">*/}
+            {/*            {orderList.map((order) => (*/}
+            {/*                <div key={order.id} className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow duration-200">*/}
+            {/*                    <div className="flex justify-between items-center mb-2">*/}
+            {/*                        <h3 className="text-lg font-semibold">{order.areaName}</h3>*/}
+            {/*                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>*/}
+            {/*                {order.status}*/}
+            {/*            </span>*/}
+            {/*                    </div>*/}
+            {/*                    <p className="text-sm text-gray-600 mb-2 flex items-center">*/}
+            {/*                        <Calendar className="mr-1" size={16} />*/}
+            {/*                        {new Date(order.targetDate).toLocaleDateString()}*/}
+            {/*                    </p>*/}
+            {/*                    <div className="flex justify-between text-sm">*/}
+            {/*                        <span className="flex items-center">*/}
+            {/*                            <CheckCircle className="mr-1" size={16} />*/}
+            {/*                            {order.completeCount}*/}
+            {/*                        </span>*/}
+            {/*                        <span className="flex items-center">*/}
+            {/*                            <Clock className="mr-1" size={16} />*/}
+            {/*                            {order.pendingCount}*/}
+            {/*                        </span>*/}
+            {/*                        <span className="flex items-center">*/}
+            {/*                            <XCircle className="mr-1" size={16} />*/}
+            {/*                            {order.failedCount}*/}
+            {/*                        </span>*/}
+            {/*                    </div>*/}
+            {/*                    {order.status === STATUS.EXEC_RUNNING && (*/}
+            {/*                    <div className="mt-2">*/}
+            {/*                        <progress*/}
+            {/*                            value={order.completeCount || 0}*/}
+            {/*                            max={(order.completeCount || 0) + (order.pendingCount || 0)}*/}
+            {/*                            className="w-full"*/}
+            {/*                        />*/}
+            {/*                    </div>*/}
+            {/*                    )}*/}
+            {/*                </div>*/}
+            {/*            ))}*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*)}*/}
+            <OrderList />
 
             <ConfirmOrderModal
                 isOpen={isModalOpen}

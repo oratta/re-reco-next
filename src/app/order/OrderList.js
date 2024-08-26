@@ -1,8 +1,11 @@
-import React from 'react';
+'use client';
+
+import React, {useState} from 'react';
 import { ClipboardList, ListIcon, Clock, CheckCircle, XCircle, PlayCircle, PauseCircle } from 'lucide-react';
 import { STATUS as JOB_LISTING_STATUS } from "@/commons/models/JobListing";
 
 export default function OrderList({ orderList }) {
+    const [showCompleted, setShowCompleted] = useState(false);
     const getStatusText = (status) => {
         switch (status) {
             case JOB_LISTING_STATUS.LIST_RUNNING: return 'Preparing';
@@ -66,32 +69,52 @@ export default function OrderList({ orderList }) {
         return queuePosition;
     };
 
+    const filteredOrderList = showCompleted
+        ? orderList
+        : orderList.filter(order => order.status !== JOB_LISTING_STATUS.EXEC_COMPLETED);
+
     return (
         <div className="mt-8 w-full">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <ClipboardList className="mr-2" size={24} />
-                Order List
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                    <ClipboardList className="mr-2" size={24}/>
+                    Order List
+                </h2>
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="showCompleted"
+                        checked={showCompleted}
+                        onChange={(e) => setShowCompleted(e.target.checked)}
+                        className="form-checkbox h-5 w-5 text-blue-600"
+                    />
+                    <label htmlFor="showCompleted" className="text-sm text-gray-700">
+                        Show completed jobs
+                    </label>
+                </div>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-                {Array.isArray(orderList) && orderList.map((order) => {
+                {Array.isArray(filteredOrderList) && filteredOrderList.map((order) => {
                     if (!order || typeof order !== 'object') {
                         console.error('Invalid order object:', order);
                         return null;
                     }
                     return (
-                        <div key={order.id} className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow duration-200">
+                        <div key={order.id}
+                             className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow duration-200">
                             <div className="flex justify-between items-center mb-2">
                                 <h3 className="text-lg font-semibold">
-                                    {formatDate(order.targetDate, order.isNow, order.startTime)}<br />{order.areaName}
+                                    {formatDate(order.targetDate, order.isNow, order.startTime)}<br/>{order.areaName}
                                 </h3>
-                                <span className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center ${getStatusColor(order.status)}`}>
+                                <span
+                                    className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center ${getStatusColor(order.status)}`}>
                                     {getStatusIcon(order.status)}
                                     <span className="ml-1">{getStatusText(order.status)}</span>
                                 </span>
                             </div>
                             <div className="grid grid-cols-2 gap-2 text-sm">
                                 <div className="flex items-center">
-                                    <Clock className="mr-1" size={16} />
+                                    <Clock className="mr-1" size={16}/>
                                     {order.status === JOB_LISTING_STATUS.EXEC_RUNNING && (
                                         <span>
                                             Elapsed: {formatDuration(order.startTime, new Date())}
@@ -136,7 +159,8 @@ export default function OrderList({ orderList }) {
                             )}
                             {order.status === JOB_LISTING_STATUS.LIST_COMPLETED && (
                                 <div className="mt-2 text-sm text-gray-600">
-                                    Estimated start: {new Date(Date.now() + (renderQueuePosition(order.queuePosition) * 30 * 60000)).toLocaleTimeString()}
+                                    Estimated
+                                    start: {new Date(Date.now() + (renderQueuePosition(order.queuePosition) * 30 * 60000)).toLocaleTimeString()}
                                 </div>
                             )}
                         </div>

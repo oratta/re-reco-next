@@ -4,6 +4,9 @@ import {consoleError} from "@/commons/utils/log";
 import {STATUS} from "@/commons/models/JobListing";
 import {bulkExecuteJobReRe as JobReRe_bulkExecuteJobReRe} from "@/features/executeJobReRe/services/JobReservationRateService";
 import {debugMsg, errorMsg, infoMsg} from "@/commons/utils/logger";
+import * as JobListing from "@/commons/models/JobListing";
+
+const stopExecutionMap = new Map();
 
 export async function createJobListing({areaCode, targetDate, condition}) {
     let jobListing = {};
@@ -77,12 +80,41 @@ export async function handleBulkExecute(jobListing){
     }
 }
 
+async function startBulkExecute(jobListingId){
+    const jobListing = await JobListing.startBulkExecute(jobListingId);
+    if(!jobListing) throw new Error("jobListing is not found");
+
+    stopExecutionMap.set(jobListingId, false);
+    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
+        globalThis.sseClients[jobListingId]({status: JobListing.STATUS.EXEC_RUNNING});
+    }
+
+    return jobListing;
+}
+
+async function failBulkExecute(jobListingId){
+    await JobListing.failBulkExecute(jobListingId, "Error in Reservation Rate jobs: " + error.message);
+    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
+        globalThis.sseClients[jobListingId]({ status: JobListing.STATUS.EXEC_FAILED });
+    }
+}
+
+async function finishBulkExecute(jobListingId){
+    await JobListing.finishBulkExecute(jobListingId);
+
+    // Notify the client via SSE
+    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
+        globalThis.sseClients[jobListingId]({status: JobListing.STATUS.EXEC_COMPLETED});
+    }
+}
+
 export async function bulkExecuteJobReRe(jobListingId) {
     try{
-        //TODO
-        //jobListingのステータス変更処理をJobReRe側からぬく
+        await startBulkExecute(jobListingId);
         await JobReRe_bulkExecuteJobReRe(jobListingId);
+        await finishBulkExecute(jobListingId);
     }catch(error){
+        await failBulkExecute(jobListingId);
         consoleError(error, "failed to bulkExecuteJobReRe", false);
         throw error;
     }
@@ -201,3 +233,44 @@ export async function updateJobListingStatus(jobId, newStatus, additionalData = 
         throw error;
     }
 }
+
+export async function resumeIncompleteJobs() {
+    try {
+        // 実行中のジョブを探す
+        let jobToResume = await findJobByStatus(STATUS.EXEC_RUNNING);
+
+        // 実行中のジョブがない場合、完了待ちのジョブを探す
+        if (!jobToResume) {
+            jobToResume = await findJobByStatus(STATUS.LIST_COMPLETED);
+        }
+
+        if (jobToResume) {
+            infoMsg(`Resuming job: ${jobToResume.id}`);
+            await bulkExecuteJobReRe(jobToResume.id);
+        } else {
+            debugMsg('No jobs to resume');
+        }
+    } catch (error) {
+        errorMsg('Error resuming incomplete jobs:', error);
+    }
+}
+
+async function findJobByStatus(status) {
+    return await prisma.jobListing.findFirst({
+        where: { status: status },
+        orderBy: { createdAt: 'asc' }
+    });
+}
+
+// 定期的にジョブの状態をチェックし、必要に応じて再開する関数
+export async function checkAndResumeJobs() {
+    try {
+        const runningJob = await findJobByStatus(STATUS.EXEC_RUNNING);
+        if (!runningJob) {
+            await resumeIncompleteJobs();
+        }
+    } catch (error) {
+        errorMsg('Error checking and resuming jobs:', error);
+    }
+}
+

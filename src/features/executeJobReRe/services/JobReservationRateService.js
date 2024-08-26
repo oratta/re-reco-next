@@ -4,38 +4,8 @@ import * as JobReservationRate from "@/commons/models/JobReservationRate";
 import * as JobListing from "@/commons/models/JobListing";
 import {consoleLog} from "@/commons/utils/log";
 
-const stopExecutionMap = new Map();
-
-async function startBulkExecute(jobListingId){
-    const jobListing = await JobListing.startBulkExecute(jobListingId);
-    if(!jobListing) throw new Error("jobListing is not found");
-
-    stopExecutionMap.set(jobListingId, false);
-    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-        globalThis.sseClients[jobListingId]({status: JobListing.STATUS.EXEC_RUNNING});
-    }
-
-    return jobListing;
-}
-async function finishBulkExecute(jobListingId){
-    await JobListing.finishBulkExecute(jobListingId);
-
-    // Notify the client via SSE
-    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-        globalThis.sseClients[jobListingId]({status: JobListing.STATUS.EXEC_COMPLETED});
-    }
-}
-async function failBulkExecute(jobListingId){
-    await JobListing.failBulkExecute(jobListingId, "Error in Reservation Rate jobs: " + error.message);
-    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-        globalThis.sseClients[jobListingId]({ status: JobListing.STATUS.EXEC_FAILED });
-    }
-}
-
-export async function bulkExecuteJobReRe(jobListingId) {
+export async function bulkExecuteJobReRe(jobListingId,stopExecutionMap) {
     try{
-        await startBulkExecute(jobListingId);
-
         const jobReservationRates = await prisma.jobReservationRate.findMany({
             where: {
                 jobListingId,
@@ -67,10 +37,8 @@ export async function bulkExecuteJobReRe(jobListingId) {
                 });
             }
         }
-        await finishBulkExecute(jobListingId);
     } catch (error) {
-        consoleLog('Error in background job:' + error.message);
-        await failBulkExecute(jobListingId);
+        throw error;
     }
 
 }

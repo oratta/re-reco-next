@@ -108,20 +108,25 @@ export async function getActiveJobListings() {
             }
         });
 
-        return jobListings.map(job => ({
-            id: job.id,
-            status: job.status,
-            areaName: job.area.name,
-            targetDate: job.targetDate,
-            isNow: job.condition.includes('play'),
-            listSize: job.listCount,
-            completeCount: job.jobReservationRates.filter(rate => rate.status === 'completed').length,
-            pendingCount: job.jobReservationRates.filter(rate => rate.status === 'pending').length,
-            failedCount: job.jobReservationRates.filter(rate => rate.status === 'failed').length,
-            startTime: job.startedAt,
-            estimatedEndTime: job.completedAt || null,
-            queuePosition: job.status === STATUS.LIST_COMPLETED ? getQueuePosition(job.id) : null
+        const activeJobListings = await Promise.all(jobListings.map(async (job) => {
+            const queuePosition = job.status === STATUS.LIST_COMPLETED ? await getQueuePosition(job.id) : null;
+            return {
+                id: job.id,
+                status: job.status,
+                areaName: job.area.name,
+                targetDate: job.targetDate,
+                isNow: job.condition.includes('play'),
+                listSize: job.listCount,
+                completeCount: job.jobReservationRates.filter(rate => rate.status === 'completed').length,
+                pendingCount: job.jobReservationRates.filter(rate => rate.status === 'pending').length,
+                failedCount: job.jobReservationRates.filter(rate => rate.status === 'failed').length,
+                startTime: job.startedAt,
+                estimatedEndTime: job.completedAt || null,
+                queuePosition: queuePosition
+            };
         }));
+
+        return activeJobListings;
     } catch (error) {
         errorMsg('Error fetching active job listings:', error);
         throw error;

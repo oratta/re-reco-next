@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import {getActiveJobListings} from "@/features/listingCast/services/JobListingsService";
 import {consoleError, consoleLog} from "@/commons/utils/log";
-import {debugMsg} from "@/commons/utils/logger";
+import {debugMsg, errorMsg} from "@/commons/utils/logger";
 
 const clients = new Map();
 const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -100,6 +100,7 @@ export async function GET(req) {
 
             try {
                 const activeJobListings = await getActiveJobListings();
+                console.log("activeJobListings: ", activeJobListings);
                 send({ type: 'initial', data: activeJobListings });
                 debugMsg('Sending initial job listings:', activeJobListings);
 

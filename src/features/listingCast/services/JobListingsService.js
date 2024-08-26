@@ -2,7 +2,7 @@ import prisma from "@/commons/libs/prisma";
 import runJobListing from "@/features/listingCast/services/actions/runJobListing";
 import {consoleError} from "@/commons/utils/log";
 import {STATUS} from "@/commons/models/JobListing";
-import * as JobReservationRateService from "@/features/executeJobReRe/services/JobReservationRateService";
+import {bulkExecuteJobReRe as JobReRe_bulkExecuteJobReRe} from "@/features/executeJobReRe/services/JobReservationRateService";
 import {debugMsg, errorMsg, infoMsg} from "@/commons/utils/logger";
 
 export async function createJobListing({areaCode, targetDate, condition}) {
@@ -81,7 +81,7 @@ export async function bulkExecuteJobReRe(jobListingId) {
     try{
         //TODO
         //jobListingのステータス変更処理をJobReRe側からぬく
-        await JobReservationRateService.bulkExecuteJobReRe(jobListingId);
+        await JobReRe_bulkExecuteJobReRe(jobListingId);
     }catch(error){
         consoleError(error, "failed to bulkExecuteJobReRe", false);
         throw error;
@@ -89,13 +89,110 @@ export async function bulkExecuteJobReRe(jobListingId) {
 }
 
 export async function getActiveJobListings() {
-    const result = await prisma.jobListing.findMany({
-        where: {
-            status: {
-                in: [STATUS.EXEC_RUNNING, STATUS.LIST_COMPLETED]
+    try {
+        const jobListings = await prisma.jobListing.findMany({
+            where: {
+                status: {
+                    in: [STATUS.LIST_RUNNING, STATUS.EXEC_RUNNING, STATUS.LIST_COMPLETED]
+                },
+                listCount: {
+                    not: 0
+                }
+            },
+            include: {
+                area: true,
+                jobReservationRates: true
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
-        }
-    });
+        });
 
-    return result;
+        return jobListings.map(job => ({
+            id: job.id,
+            status: job.status,
+            areaName: job.area.name,
+            targetDate: job.targetDate,
+            isNow: job.condition.includes('play'),
+            listSize: job.listCount,
+            completeCount: job.jobReservationRates.filter(rate => rate.status === 'completed').length,
+            pendingCount: job.jobReservationRates.filter(rate => rate.status === 'pending').length,
+            failedCount: job.jobReservationRates.filter(rate => rate.status === 'failed').length,
+            startTime: job.startedAt,
+            estimatedEndTime: job.completedAt || null,
+            queuePosition: job.status === STATUS.LIST_COMPLETED ? getQueuePosition(job.id) : null
+        }));
+    } catch (error) {
+        errorMsg('Error fetching active job listings:', error);
+        throw error;
+    }
+}
+
+async function getQueuePosition(jobId) {
+    try {
+        // 現在のジョブの updatedAt を取得
+        const currentJob = await prisma.jobListing.findUnique({
+            where: { id: jobId },
+            select: { updatedAt: true }
+        });
+
+        if (!currentJob) {
+            throw new Error(`Job with id ${jobId} not found`);
+        }
+
+        // LIST_COMPLETED 状態のジョブで、現在のジョブより古い（または同じ）updatedAt を持つジョブの数をカウント
+        const queuePosition = await prisma.jobListing.count({
+            where: {
+                status: STATUS.LIST_COMPLETED,
+                updatedAt: {
+                    lte: currentJob.updatedAt
+                }
+            }
+        });
+
+        return queuePosition;
+    } catch (error) {
+        console.error(`Error getting queue position for job ${jobId}:`, error);
+        errorMsg(`Error getting queue position for job ${jobId}:`, error);
+        return 0;
+    }
+}
+
+export async function updateJobListingStatus(jobId, newStatus, additionalData = {}) {
+    try {
+        const updatedJob = await prisma.jobListing.update({
+            where: { id: jobId },
+            data: {
+                status: newStatus,
+                ...additionalData
+            },
+            include: {
+                area: true,
+                jobReservationRates: true
+            }
+        });
+
+        const jobData = {
+            id: updatedJob.id,
+            status: updatedJob.status,
+            areaName: updatedJob.area.name,
+            targetDate: updatedJob.targetDate,
+            isNow: updatedJob.condition.includes('play1'),
+            listSize: updatedJob.listCount,
+            completeCount: updatedJob.jobReservationRates.filter(rate => rate.status === 'completed').length,
+            pendingCount: updatedJob.jobReservationRates.filter(rate => rate.status === 'pending').length,
+            failedCount: updatedJob.jobReservationRates.filter(rate => rate.status === 'failed').length,
+            startTime: updatedJob.startedAt,
+            estimatedEndTime: updatedJob.completedAt || null,
+            queuePosition: updatedJob.status === STATUS.LIST_COMPLETED ? await getQueuePosition(updatedJob.id) : null
+        };
+
+        // Notify all clients about the update
+        globalThis.notifyAllClients({ type: 'update', data: jobData });
+
+        return jobData;
+    } catch (error) {
+        errorMsg('Error updating job listing status:', error);
+        throw error;
+    }
 }

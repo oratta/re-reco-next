@@ -56,10 +56,10 @@ let cleanupInterval = startCleanupInterval();
 let pingInterval = startPingInterval();
 
 export async function GET(req) {
-    consoleLog(`New SSE connection request. Current connections: ${clients.size}`);
+    debugMsg(`New SSE connection request. Current connections: ${clients.size}`);
 
     if (clients.size >= MAX_CONNECTIONS) {
-        consoleLog(`Maximum connections (${MAX_CONNECTIONS}) reached. Rejecting new connection.`);
+        debugMsg(`Maximum connections (${MAX_CONNECTIONS}) reached. Rejecting new connection.`);
         return new Response(JSON.stringify({ error: 'Maximum number of connections reached. Please try again later.' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' }
@@ -67,7 +67,7 @@ export async function GET(req) {
     }
 
     const clientId = generateClientId(req);
-    consoleLog(`Generated client ID: ${clientId}`);
+    debugMsg(`Generated client ID: ${clientId}`);
 
     const stream = new ReadableStream({
         async start(controller) {
@@ -77,7 +77,7 @@ export async function GET(req) {
             };
 
             if (clients.has(clientId)) {
-                consoleLog(`Existing client found with ID ${clientId}. Updating connection.`);
+                debugMsg(`Existing client found with ID ${clientId}. Updating connection.`);
                 const existingClient = clients.get(clientId);
                 existingClient.send = send;
                 existingClient.controller = controller;
@@ -88,28 +88,25 @@ export async function GET(req) {
                     controller,
                     lastActivityTime: Date.now()
                 });
-                consoleLog(`New client ${clientId} connected. Total clients: ${clients.size}`);
+                debugMsg(`New client ${clientId} connected. Total clients: ${clients.size}`);
             }
 
             req.signal.addEventListener('abort', () => {
-                // Only remove the client if this is the current controller
                 if (clients.get(clientId)?.controller === controller) {
                     clients.delete(clientId);
-                    consoleLog(`Client ${clientId} disconnected. Remaining clients: ${clients.size}`);
+                    debugMsg(`Client ${clientId} disconnected. Remaining clients: ${clients.size}`);
                 }
             });
 
             try {
-                // Send initial data
                 const activeJobListings = await getActiveJobListings();
                 send({ type: 'initial', data: activeJobListings });
-                consoleLog('Sending initial job listings:', activeJobListings);
+                debugMsg('Sending initial job listings:', activeJobListings);
 
-                // Send connection success message
                 send({ type: 'connection', status: 'success', message: 'Connected successfully' });
-                consoleLog(`Sent connection success message to client ${clientId}`);
+                debugMsg(`Sent connection success message to client ${clientId}`);
             } catch (error) {
-                consoleError(error, `Error sending initial data to client ${clientId}:`);
+                errorMsg(`Error sending initial data to client ${clientId}:`, error);
                 send({ type: 'error', message: 'Failed to fetch initial data' });
                 controller.close();
             }
@@ -134,11 +131,11 @@ globalThis.notifyAllClients = (data) => {
             client.lastActivityTime = now;
             notifiedCount++;
         } catch (error) {
-            consoleLog(`Error sending message to client ${clientId}:`, error);
+            errorMsg(`Error sending message to client ${clientId}:`, error);
             clients.delete(clientId);
         }
     });
-    consoleLog(`Notified ${notifiedCount} clients with data:`, data);
+    debugMsg(`Notified ${notifiedCount} clients with data:`, data);
 };
 
 // Ensure cleanup and ping intervals are cleared when the server shuts down

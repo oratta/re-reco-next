@@ -1,18 +1,17 @@
 'use client';
 
-import React, {useState} from 'react';
-import {AlertCircle, Calendar, CheckCircle, ClipboardList, Clock, RotateCw, SearchCode, XCircle} from 'lucide-react';
+import React, { useState } from 'react';
+import { SearchCode } from 'lucide-react';
 import Image from 'next/image';
-import {useForm} from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import ConfirmOrderModal from './ConfirmOrderModal';
-import OrderList from "@/app/order/OrderList";
-import {fetchApi} from "@/commons/utils/api";
-import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
-import {useSSEConnection} from './useSSEConnection';
-import {useAreas} from "@/commons/components/contexts/AreasContext";
-import {parseUrl} from "@/app/api/job-listings/confirm/confirmJobList";
+import OrderList from './OrderList';
+import { fetchApi } from "@/commons/utils/api";
+import { useLoadingSetter } from "@/commons/components/contexts/LoadingContext";
+import { useSSEConnection } from './useSSEConnection';
+import { useAreas } from "@/commons/components/contexts/AreasContext";
+import { parseUrl } from "@/app/api/job-listings/confirm/confirmJobList";
 import clientConsole from "@/commons/utils/clientConsole";
-import {STATUS} from "@/commons/models/JobListing";
 
 export default function CreateOrder() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,17 +32,24 @@ export default function CreateOrder() {
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const handleCheck = async (data) => {
-        console.log(data);
-        const result = await fetchApi('/api/job-listings/confirm', 'POST', setIsLoading, data);
-        console.log(result);
+        try {
+            setIsLoading(true);
+            const result = await fetchApi('/api/job-listings/confirm', 'POST', setIsLoading, data);
+            clientConsole.info("Confirmation result:", result);
 
-        setAreaName(result.areaName);
-        setTargetDate(result.targetDate);
-        setListSize(result.listSize);
-        setIsValidOrder(result.isValid);
-        setUrl(data.url);
-        setModalStatus('confirm');
-        setIsModalOpen(true);
+            setAreaName(result.areaName);
+            setTargetDate(result.targetDate);
+            setListSize(result.listSize);
+            setIsValidOrder(result.isValid);
+            setUrl(data.url);
+            setModalStatus('confirm');
+            setIsModalOpen(true);
+        } catch (error) {
+            clientConsole.error("Failed to check order:", error);
+            setStatusMessage(error.message || 'Failed to check order. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleModalClose = () => {
@@ -53,8 +59,9 @@ export default function CreateOrder() {
 
     const handleCreateOrder = async () => {
         try {
+            setIsLoading(true);
             const {areaCode, targetDate, condition} = parseUrl(url);
-            clientConsole.info("parameter: ", {areaCode, targetDate, condition});
+            clientConsole.info("Order parameters:", {areaCode, targetDate, condition});
             const response = await fetchApi('api/job-listings', 'POST', setIsLoading, { areaCode, targetDate, condition });
 
             if (response.error) {
@@ -67,6 +74,8 @@ export default function CreateOrder() {
             clientConsole.error("Failed to create order:", error);
             setModalStatus('error');
             setStatusMessage(error.message || 'Failed to create order. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -90,25 +99,6 @@ export default function CreateOrder() {
         return true;
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case STATUS.EXEC_RUNNING: return 'text-blue-500';
-            case STATUS.EXEC_COMPLETED: return 'text-green-500';
-            case STATUS.EXEC_FAILED: return 'text-red-500';
-            default: return 'text-gray-500';
-        }
-    };
-
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case STATUS.EXEC_RUNNING: return <RotateCw className="animate-spin" />;
-            case STATUS.EXEC_COMPLETED: return <SearchCode />;
-            case STATUS.EXEC_FAILED: return <AlertCircle />;
-            default: return null;
-        }
-    };
-
-
     return (
         <div className="p-4 max-w-4xl mx-auto">
             {connectionError && (
@@ -123,8 +113,7 @@ export default function CreateOrder() {
             </div>
             <div className="space-y-4">
                 <div className="border p-4 rounded-md">
-                    {/* eslint-disable-next-line react/no-unescaped-entities */}
-                    <p className="mb-4">Please perform a conditional search on the external site that you're jumping to. If there are more than 300 target cast members, the process cannot be executed, so please tighten the conditions to reduce the number of target cast members. After confirming the conditions, copy the URL and input it into the placeholder below, then press the Check button.</p>
+                    <p className="mb-4">Please perform a conditional search on the external site that you are jumping to. If there are more than 300 target cast members, the process cannot be executed, so please tighten the conditions to reduce the number of target cast members. After confirming the conditions, copy the URL and input it into the placeholder below, then press the Check button.</p>
                     <div className="flex justify-center items-center space-x-4">
                         <label className="flex items-center space-x-2">
                             <input
@@ -158,54 +147,8 @@ export default function CreateOrder() {
                     </form>
                 )}
             </div>
-            {/*{orderList.length > 0 && (*/}
-            {/*    <div className="mt-8 w-full">*/}
-            {/*        <h2 className="text-xl font-semibold mb-4 flex items-center">*/}
-            {/*            <ClipboardList className="mr-2" size={24} />*/}
-            {/*            Order List*/}
-            {/*        </h2>*/}
-            {/*        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">*/}
-            {/*            {orderList.map((order) => (*/}
-            {/*                <div key={order.id} className="border p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow duration-200">*/}
-            {/*                    <div className="flex justify-between items-center mb-2">*/}
-            {/*                        <h3 className="text-lg font-semibold">{order.areaName}</h3>*/}
-            {/*                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>*/}
-            {/*                {order.status}*/}
-            {/*            </span>*/}
-            {/*                    </div>*/}
-            {/*                    <p className="text-sm text-gray-600 mb-2 flex items-center">*/}
-            {/*                        <Calendar className="mr-1" size={16} />*/}
-            {/*                        {new Date(order.targetDate).toLocaleDateString()}*/}
-            {/*                    </p>*/}
-            {/*                    <div className="flex justify-between text-sm">*/}
-            {/*                        <span className="flex items-center">*/}
-            {/*                            <CheckCircle className="mr-1" size={16} />*/}
-            {/*                            {order.completeCount}*/}
-            {/*                        </span>*/}
-            {/*                        <span className="flex items-center">*/}
-            {/*                            <Clock className="mr-1" size={16} />*/}
-            {/*                            {order.pendingCount}*/}
-            {/*                        </span>*/}
-            {/*                        <span className="flex items-center">*/}
-            {/*                            <XCircle className="mr-1" size={16} />*/}
-            {/*                            {order.failedCount}*/}
-            {/*                        </span>*/}
-            {/*                    </div>*/}
-            {/*                    {order.status === STATUS.EXEC_RUNNING && (*/}
-            {/*                    <div className="mt-2">*/}
-            {/*                        <progress*/}
-            {/*                            value={order.completeCount || 0}*/}
-            {/*                            max={(order.completeCount || 0) + (order.pendingCount || 0)}*/}
-            {/*                            className="w-full"*/}
-            {/*                        />*/}
-            {/*                    </div>*/}
-            {/*                    )}*/}
-            {/*                </div>*/}
-            {/*            ))}*/}
-            {/*        </div>*/}
-            {/*    </div>*/}
-            {/*)}*/}
-            <OrderList />
+
+            <OrderList orderList={orderList} />
 
             <ConfirmOrderModal
                 isOpen={isModalOpen}

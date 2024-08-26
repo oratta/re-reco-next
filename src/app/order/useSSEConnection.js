@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { consoleLog } from "@/commons/utils/log";
 import clientConsole from "@/commons/utils/clientConsole";
 
 export function useSSEConnection() {
@@ -20,10 +19,12 @@ export function useSSEConnection() {
             } else if (data.type === 'update') {
                 setOrderList(prevList => {
                     const updatedList = prevList.map(order =>
-                        order.id === data.jobListingId ? { ...order, ...data.data } : order
+                        order.id === data.data.id ? { ...order, ...data.data } : order
                     );
-                    consoleLog('Updated order list:', updatedList);
-                    return updatedList;
+                    if (!updatedList.some(order => order.id === data.data.id)) {
+                        updatedList.push(data.data);
+                    }
+                    return updatedList.sort((a, b) => new Date(b.targetDate) - new Date(a.targetDate));
                 });
             } else if (data.type === 'ping') {
                 clientConsole.debug('Ping received');
@@ -42,7 +43,7 @@ export function useSSEConnection() {
             eventSource.onmessage = handleSSEMessage;
 
             eventSource.onerror = (error) => {
-                clientConsole.info('SSE connection error:', error);
+                clientConsole.error('SSE connection error:', error);
                 setConnectionError('Connection lost. Attempting to reconnect...');
                 eventSource.close();
                 setTimeout(connectSSE, 5000);
@@ -63,6 +64,7 @@ export function useSSEConnection() {
             }
         };
     }, [handleSSEMessage]);
-
+    clientConsole.info(orderList);
+    console.log(orderList);
     return { orderList, connectionError };
 }

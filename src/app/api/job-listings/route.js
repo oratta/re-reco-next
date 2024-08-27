@@ -59,5 +59,44 @@ export async function GET(req) {
     } else {
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
     }
+}
 
+export async function PUT(request) {
+    try {
+        const resumeThresholdHours = 10; // このパラメータは設定可能にすることができます
+
+        // EXEC_RUNNING ジョブを探す
+        let jobToResume = await prisma.jobListing.findFirst({
+            where: { status: STATUS.EXEC_RUNNING },
+            orderBy: { createdAt: 'asc' }
+        });
+
+        if (jobToResume) {
+            const now = new Date();
+            const jobStartTime = new Date(jobToResume.startedAt);
+            const hoursPassed = (now - jobStartTime) / (1000 * 60 * 60);
+
+            if (hoursPassed <= resumeThresholdHours) {
+                return NextResponse.json({ error: 'There is an active job that has not exceeded the time threshold' }, { status: 400 });
+            }
+        } else {
+            // EXEC_RUNNING ジョブがない場合、LIST_COMPLETED ジョブを探す
+            jobToResume = await prisma.jobListing.findFirst({
+                where: { status: STATUS.LIST_COMPLETED },
+                orderBy: { createdAt: 'asc' }
+            });
+        }
+
+        if (!jobToResume) {
+            return NextResponse.json({ error: 'No job to resume' }, { status: 400 });
+        }
+
+        // ジョブを再開
+        await bulkExecuteJobReRe(jobToResume.id);
+
+        return NextResponse.json({ message: 'Job resumed successfully', jobId: jobToResume.id });
+    } catch (error) {
+        consoleError(error, 'Failed to resume job');
+        return NextResponse.json({ error: 'Failed to resume job', details: error.message }, { status: 500 });
+    }
 }

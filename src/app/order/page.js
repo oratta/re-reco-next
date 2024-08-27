@@ -99,6 +99,17 @@ export default function CreateOrder() {
         return true;
     };
 
+    const handleResume = async () => {
+        try {
+            const result = await fetchApi('/api/job-listings', 'PUT', setIsLoading);
+            clientConsole.info("Resume result:", result);
+            // 必要に応じて、成功メッセージを表示したり、状態を更新したりします
+        } catch (error) {
+            clientConsole.error("Failed to resume jobs:", error);
+            // エラーメッセージを表示します
+        }
+    };
+
     return (
         <div className="p-4 max-w-4xl mx-auto">
             {connectionError && (
@@ -149,7 +160,7 @@ export default function CreateOrder() {
                 )}
             </div>
 
-            <OrderList orderList={orderList} />
+            <OrderList orderList={orderList} onResume={handleResume} />
 
             <ConfirmOrderModal
                 isOpen={isModalOpen}

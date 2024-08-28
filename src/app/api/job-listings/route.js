@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/commons/libs/prisma';
-import {runJobList, createJobListing, bulkExecuteJobReRe} from "@/features/listingCast/services/JobListingsService";
+import {
+    runJobList,
+    createJobListing,
+    bulkExecuteJobReRe,
+    handleBulkExecute
+} from "@/features/listingCast/services/JobListingsService";
 import {consoleError, consoleLog} from "@/commons/utils/log";
 import {getJobListingsForAction} from "@/features/executeJobReRe/services/getJobListingsForAction";
 import {getWebParameter} from "@/commons/utils/api";
 import {FLAG_IS_NOW} from "@/app/api/job-listings/confirm/confirmJobList";
+import {STATUS} from "@/commons/models/JobListing";
 
 export async function POST(request, {params}) {
     console.log("request post api/job-listings");
@@ -23,7 +29,7 @@ export async function POST(request, {params}) {
         //非同期でJobListの実行
         //すでに実行中のジョブがある場合は待機に回る
         //実行中のジョブが完了した場合は、待機しているジョブを実行する
-        bulkExecuteJobReRe(jobListing.id).then(r => console.log("bulkExecuteJobReRe", r));
+        handleBulkExecute(jobListing.id).then(r => console.log("bulkExecuteJobReRe", r));
 
         return NextResponse.json(jobListing, { status: 201 });
     } catch (error) {
@@ -79,6 +85,17 @@ export async function PUT(request) {
             if (hoursPassed <= resumeThresholdHours) {
                 return NextResponse.json({ error: 'There is an active job that has not exceeded the time threshold' }, { status: 400 });
             }
+
+            await prisma.jobListing.update({
+                where: {
+                    id: jobToResume.id
+                },
+                data: {
+                    status: STATUS.LIST_COMPLETED,
+                    result: 'Job interrupted'
+                },
+            });
+
         } else {
             // EXEC_RUNNING ジョブがない場合、LIST_COMPLETED ジョブを探す
             jobToResume = await prisma.jobListing.findFirst({
@@ -92,7 +109,7 @@ export async function PUT(request) {
         }
 
         // ジョブを再開
-        await bulkExecuteJobReRe(jobToResume.id);
+        await handleBulkExecute(jobToResume);
 
         return NextResponse.json({ message: 'Job resumed successfully', jobId: jobToResume.id });
     } catch (error) {

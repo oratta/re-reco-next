@@ -50,7 +50,7 @@ export async function runJobList(jobListing) {
  */
 export async function handleBulkExecute(jobListing){
     try {
-        const isExecute = await prisma.jobListing.findOne({
+        const isExecute = await prisma.jobListing.findFirst({
             where: {
                 id: jobListing.id,
                 status: STATUS.EXEC_RUNNING
@@ -66,7 +66,7 @@ export async function handleBulkExecute(jobListing){
 
         await bulkExecuteJobReRe(jobListing.id);
 
-        const otherPendingJobList = await prisma.jobListing.find({
+        const otherPendingJobList = await prisma.jobListing.findFirst({
             where: {
                 status: STATUS.LIST_COMPLETED,
             }
@@ -86,16 +86,16 @@ async function startBulkExecute(jobListingId){
 
     stopExecutionMap.set(jobListingId, false);
     if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-        globalThis.sseClients[jobListingId]({status: JobListing.STATUS.EXEC_RUNNING});
+        globalThis.sseClients[jobListingId]({status: STATUS.EXEC_RUNNING});
     }
 
     return jobListing;
 }
 
 async function failBulkExecute(jobListingId){
-    await JobListing.failBulkExecute(jobListingId, "Error in Reservation Rate jobs: " + error.message);
+    await JobListing.failBulkExecute(jobListingId, "Error in Reservation Rate jobs: ");
     if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-        globalThis.sseClients[jobListingId]({ status: JobListing.STATUS.EXEC_FAILED });
+        globalThis.sseClients[jobListingId]({ status: STATUS.EXEC_FAILED });
     }
 }
 
@@ -104,14 +104,14 @@ async function finishBulkExecute(jobListingId){
 
     // Notify the client via SSE
     if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-        globalThis.sseClients[jobListingId]({status: JobListing.STATUS.EXEC_COMPLETED});
+        globalThis.sseClients[jobListingId]({status: STATUS.EXEC_COMPLETED});
     }
 }
 
 export async function bulkExecuteJobReRe(jobListingId) {
     try{
         await startBulkExecute(jobListingId);
-        await JobReRe_bulkExecuteJobReRe(jobListingId);
+        await JobReRe_bulkExecuteJobReRe(jobListingId, stopExecutionMap);
         await finishBulkExecute(jobListingId);
     }catch(error){
         await failBulkExecute(jobListingId);

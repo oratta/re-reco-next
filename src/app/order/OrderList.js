@@ -3,6 +3,7 @@
 import React, {useEffect, useState} from 'react';
 import { ClipboardList,RefreshCw, ListIcon, Clock, CheckCircle, XCircle, PlayCircle, PauseCircle } from 'lucide-react';
 import { STATUS as JOB_LISTING_STATUS } from "@/commons/models/JobListing";
+import clientConsole from "@/commons/utils/clientConsole";
 
 export default function OrderList({ orderList, onResume, showResumeOverlay, setShowResumeOverlay}) {
     const [showCompleted, setShowCompleted] = useState(false);
@@ -10,13 +11,19 @@ export default function OrderList({ orderList, onResume, showResumeOverlay, setS
 
     useEffect(() => {
         const shouldShowResume = checkResumeCondition(orderList);
+        clientConsole.info('Received ShouldShowResume', shouldShowResume);
         setShowResumeOverlay(shouldShowResume);
+
     }, [orderList, resumeThresholdHours]);
 
     const checkResumeCondition = (jobs) => {
-        if(jobs.length){
+        const waitingCount = jobs.filter(job => job.status === JOB_LISTING_STATUS.LIST_COMPLETED).length;
+        const runningCount = jobs.filter(job => job.status === JOB_LISTING_STATUS.EXEC_RUNNING).length;
+        clientConsole.info(waitingCount, jobs);
+        clientConsole.info(runningCount, jobs);
+        if(jobs.length === 0 || waitingCount + runningCount === 0) {
             return false;
-        } else if(jobs.filter(job => job.status === JOB_LISTING_STATUS.LIST_COMPLETED).length === jobs.length){
+        }else if( runningCount === 0 && waitingCount > 0){
             return true;
         }
         const execRunningJob = jobs.find(job => job.status === JOB_LISTING_STATUS.EXEC_RUNNING);

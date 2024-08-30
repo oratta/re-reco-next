@@ -48,7 +48,7 @@ function startPingInterval() {
                 clients.delete(clientId);
             }
         });
-        debugMsg(`Pinged ${clients.size} clients`);
+        // debugMsg(`Pinged ${clients.size} clients`);
     }, PING_INTERVAL);
 }
 
@@ -100,7 +100,7 @@ export async function GET(req) {
 
             try {
                 const activeJobListings = await getActiveJobListings();
-                console.log("activeJobListings: ", activeJobListings);
+                // console.log("activeJobListings: ", activeJobListings);
                 send({ type: 'initial', data: activeJobListings });
                 debugMsg('Sending initial job listings:', activeJobListings);
 

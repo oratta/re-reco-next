@@ -30,7 +30,7 @@ export async function POST(request, {params}) {
         //非同期でJobListの実行
         //すでに実行中のジョブがある場合は待機に回る
         //実行中のジョブが完了した場合は、待機しているジョブを実行する
-        handleBulkExecute(jobListing.id).then(r => console.log("bulkExecuteJobReRe", r));
+        handleBulkExecute(jobListing).then(r => console.log("bulkExecuteJobReRe", r));
 
         return NextResponse.json(jobListing, { status: 201 });
     } catch (error) {

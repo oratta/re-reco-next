@@ -4,14 +4,18 @@ import * as JobReservationRate from "@/commons/models/JobReservationRate";
 import * as JobListing from "@/commons/models/JobListing";
 import {consoleLog} from "@/commons/utils/log";
 
-export async function bulkExecuteJobReRe(jobListingId,stopExecutionMap) {
+export async function bulkExecuteJobReRe(jobListing,stopExecutionMap) {
     try{
         const jobReservationRates = await prisma.jobReservationRate.findMany({
             where: {
-                jobListingId,
+                jobListingId: jobListing.id,
                 status: JobReservationRate.STATUS.PENDING
             }
         });
+
+        if(jobReservationRates.length === 0){
+            throw new Error("jobReservationRates should be not empty");
+        }
 
         // Execute each pending job reservation rate asynchronously with a 5-second delay
         const jobReReCount = jobReservationRates.length;
@@ -19,7 +23,7 @@ export async function bulkExecuteJobReRe(jobListingId,stopExecutionMap) {
         let pendingCount = jobReReCount;
         for (const jobReRe of jobReservationRates) {
             if(jobReRe.status === JobReservationRate.STATUS.PENDING) {
-                if (stopExecutionMap.get(jobListingId)){
+                if (stopExecutionMap.get(jobListing.id)){
                     consoleLog(`Job ReservationRate ${jobCount}/${jobReReCount} stopped: ${jobReRe.id}`);
                     break;
                 }
@@ -32,8 +36,12 @@ export async function bulkExecuteJobReRe(jobListingId,stopExecutionMap) {
 
                 globalThis.notifyAllClients({
                     type: 'update',
-                    jobListingId,
-                    data: { pendingCount, jobCount, totalCount: jobReReCount }
+                    data: {
+                        ...jobListing,
+                        pendingCount,
+                        jobCount,
+                        totalCount: jobReReCount
+                    }
                 });
             }
         }
@@ -43,7 +51,7 @@ export async function bulkExecuteJobReRe(jobListingId,stopExecutionMap) {
 
 }
 
-export async function stopBulkExecuteJobReservationRates(jobListingId) {
+export async function stopBulkExecuteJobReservationRates(jobListingId, stopExecutionMap) {
     stopExecutionMap.set(jobListingId, true);
     const jobListing = await prisma.jobListing.update({
         where: {

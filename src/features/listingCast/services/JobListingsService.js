@@ -64,7 +64,7 @@ export async function handleBulkExecute(jobListing){
             throw new Error("jobListing is already running");
         }
 
-        await bulkExecuteJobReRe(jobListing.id);
+        await bulkExecuteJobReRe(jobListing);
 
         const otherPendingJobList = await prisma.jobListing.findFirst({
             where: {
@@ -72,7 +72,7 @@ export async function handleBulkExecute(jobListing){
             }
         });
         if(otherPendingJobList?.id){
-            bulkExecuteJobReRe(otherPendingJobList.id).then(r => console.log("bulkExecuteJobReRe", r));
+            bulkExecuteJobReRe(otherPendingJobList).then(r => console.log("bulkExecuteJobReRe", r));
         }
     }catch(error){
         consoleError(error, "failed to bulkExecuteJobReRe", false);
@@ -94,24 +94,17 @@ async function startBulkExecute(jobListingId){
 
 async function failBulkExecute(jobListingId){
     await JobListing.failBulkExecute(jobListingId, "Error in Reservation Rate jobs: ");
-    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-        globalThis.sseClients[jobListingId]({ status: STATUS.EXEC_FAILED });
-    }
 }
 
 async function finishBulkExecute(jobListingId){
     await JobListing.finishBulkExecute(jobListingId);
-
-    // Notify the client via SSE
-    if (globalThis.sseClients && globalThis.sseClients[jobListingId]) {
-        globalThis.sseClients[jobListingId]({status: STATUS.EXEC_COMPLETED});
-    }
 }
 
-export async function bulkExecuteJobReRe(jobListingId) {
+export async function bulkExecuteJobReRe(jobListing) {
+    const jobListingId = jobListing.id;
     try{
         await startBulkExecute(jobListingId);
-        await JobReRe_bulkExecuteJobReRe(jobListingId, stopExecutionMap);
+        await JobReRe_bulkExecuteJobReRe(jobListing, stopExecutionMap);
         await finishBulkExecute(jobListingId);
     }catch(error){
         await failBulkExecute(jobListingId);
@@ -140,29 +133,35 @@ export async function getActiveJobListings() {
             }
         });
 
-        const activeJobListings = await Promise.all(jobListings.map(async (job) => {
-            const queuePosition = job.status === STATUS.LIST_COMPLETED ? await getQueuePosition(job.id) : null;
-            return {
-                id: job.id,
-                status: job.status,
-                areaName: job.area.name,
-                targetDate: job.targetDate,
-                isNow: job.condition.includes('play'),
-                listSize: job.listCount,
-                completeCount: job.jobReservationRates.filter(rate => rate.status === 'completed').length,
-                pendingCount: job.jobReservationRates.filter(rate => rate.status === 'pending').length,
-                failedCount: job.jobReservationRates.filter(rate => rate.status === 'failed').length,
-                startTime: job.startedAt,
-                estimatedEndTime: job.completedAt || null,
-                queuePosition: queuePosition
-            };
-        }));
+        const activeJobListings = await Promise.all(jobListings.map(formatJobListing));
 
         return activeJobListings;
     } catch (error) {
         errorMsg('Error fetching active job listings:', error);
         throw error;
     }
+}
+
+export async function formatJobListing(job) {
+    const queuePosition = job.status === STATUS.LIST_COMPLETED ? await getQueuePosition(job.id) : null;
+    return {
+        id: job.id,
+        status: job.status,
+        areaName: job.area.name,
+        targetDate: job.targetDate,
+        isNow: job.condition.includes('play'),
+        listSize: job.listCount,
+        completeCount: job.jobReservationRates.filter(rate => rate.status === 'completed').length,
+        pendingCount: job.jobReservationRates.filter(rate => rate.status === 'pending').length,
+        failedCount: job.jobReservationRates.filter(rate => rate.status === 'failed').length,
+        startTime: job.startedAt,
+        estimatedEndTime: job.completedAt || null,
+        queuePosition: queuePosition
+    };
+}
+
+async function formatActiveJobListing(job){
+
 }
 
 async function getQueuePosition(jobId) {
@@ -246,7 +245,7 @@ export async function resumeIncompleteJobs() {
 
         if (jobToResume) {
             infoMsg(`Resuming job: ${jobToResume.id}`);
-            await bulkExecuteJobReRe(jobToResume.id);
+            await bulkExecuteJobReRe(jobToResume);
         } else {
             debugMsg('No jobs to resume');
         }

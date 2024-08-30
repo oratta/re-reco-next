@@ -3,7 +3,12 @@ import { bulkExecuteJobReRe, stopBulkExecuteJobReservationRates } from "@/featur
 export async function POST(req, { params }) {
     const { id } = params;
     try {
-        await bulkExecuteJobReRe(id);
+        const jobListing = await prisma.jobListing.findOne({
+            where: {
+                id: id
+            }
+        })
+        await bulkExecuteJobReRe(jobListing);
         return new Response(JSON.stringify({ message: 'Bulk execution started' }), { status: 200 });
     } catch (error) {
         console.error('Error executing bulk job reservation rates:', error);

@@ -32,8 +32,12 @@ export default async function runJobReservationRate(jobReRe){
         const finishMsg = "Job ReservationRate finished";
         jobReRe = await JobReservationRate.finish(jobReRe,jobReRe.cast, castInfo, finishMsg)
         consoleLog(`${finishMsg}: ${jobReRe.id}`)
+
+        return true;
     } catch (error) {
         consoleLog('Error in background job:' + error.message);
         await JobReservationRate.failed(jobReRe,"Error in Reservation Rate jobs: " + error.message );
+
+        return false;
     }
 }

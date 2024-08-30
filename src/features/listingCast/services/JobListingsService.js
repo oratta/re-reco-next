@@ -2,9 +2,9 @@ import prisma from "@/commons/libs/prisma";
 import runJobListing from "@/features/listingCast/services/actions/runJobListing";
 import {consoleError} from "@/commons/utils/log";
 import {STATUS} from "@/commons/models/JobListing";
+import {STATUS as JOB_RE_RE_STATUS} from "@/commons/models/JobReservationRate";
 import {bulkExecuteJobReRe as JobReRe_bulkExecuteJobReRe} from "@/features/executeJobReRe/services/JobReservationRateService";
 import {debugMsg, errorMsg, infoMsg} from "@/commons/utils/logger";
-import * as JobListing from "@/commons/models/JobListing";
 
 const stopExecutionMap = new Map();
 
@@ -133,7 +133,7 @@ export async function getActiveJobListings() {
             }
         });
 
-        const activeJobListings = await Promise.all(jobListings.map(formatJobListing));
+        const activeJobListings = await Promise.all(jobListings.map(formatActiveJobListing));
 
         return activeJobListings;
     } catch (error) {
@@ -142,26 +142,22 @@ export async function getActiveJobListings() {
     }
 }
 
-export async function formatJobListing(job) {
+export async function formatActiveJobListing(job, completeCount=null, pendingCount=null,failedCount=null) {
     const queuePosition = job.status === STATUS.LIST_COMPLETED ? await getQueuePosition(job.id) : null;
     return {
         id: job.id,
         status: job.status,
-        areaName: job.area.name,
+        areaName: job.area?.name || 'Unknown Area',
         targetDate: job.targetDate,
         isNow: job.condition.includes('play'),
         listSize: job.listCount,
-        completeCount: job.jobReservationRates.filter(rate => rate.status === 'completed').length,
-        pendingCount: job.jobReservationRates.filter(rate => rate.status === 'pending').length,
-        failedCount: job.jobReservationRates.filter(rate => rate.status === 'failed').length,
+        completeCount: completeCount!==null ? completeCount : job.jobReservationRates.filter(rate => rate.status === JOB_RE_RE_STATUS.COMPLETED).length,
+        pendingCount: pendingCount!==null ? pendingCount : job.jobReservationRates.filter(rate => rate.status === JOB_RE_RE_STATUS.PENDING).length,
+        failedCount: failedCount!==null ? failedCount : job.jobReservationRates.filter(rate => rate.status === JOB_RE_RE_STATUS.FAILED).length,
         startTime: job.startedAt,
         estimatedEndTime: job.completedAt || null,
         queuePosition: queuePosition
     };
-}
-
-async function formatActiveJobListing(job){
-
 }
 
 async function getQueuePosition(jobId) {

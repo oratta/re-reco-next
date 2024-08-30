@@ -11,6 +11,7 @@ import {getJobListingsForAction} from "@/features/executeJobReRe/services/getJob
 import {getWebParameter} from "@/commons/utils/api";
 import {FLAG_IS_NOW} from "@/app/api/job-listings/confirm/confirmJobList";
 import {STATUS} from "@/commons/models/JobListing";
+import {errorMsg} from "@/commons/utils/logger";
 
 export async function POST(request, {params}) {
     console.log("request post api/job-listings");
@@ -108,8 +109,10 @@ export async function PUT(request) {
             return NextResponse.json({ error: 'No job to resume' }, { status: 400 });
         }
 
-        // ジョブを再開
-        await handleBulkExecute(jobToResume);
+        // ジョブを非同期で再開
+        handleBulkExecute(jobToResume).catch(error => {
+            errorMsg(error, `Failed to resume job ${jobToResume.id}`);
+        });
 
         return NextResponse.json({ message: 'Job resumed successfully', jobId: jobToResume.id });
     } catch (error) {

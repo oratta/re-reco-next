@@ -1,4 +1,5 @@
 import winston from 'winston';
+import {consoleError, consoleLog} from "@/commons/utils/log";
 
 const logger = winston.createLogger({
     level: process.env.NODE_ENV === 'production' ? 'warn' : 'info',
@@ -29,18 +30,22 @@ export default logger;
 // Helper functions
 export function debugMsg(message, meta = {}) {
     logger.debug(message, { ...meta, caller: getCaller() });
+    consoleLog(message);
 }
 
 export function infoMsg(message, meta = {}) {
     logger.info(message, { ...meta, caller: getCaller() });
+    consoleLog(message);
 }
 
 export function warnMsg(message, meta = {}) {
     logger.warn(message, { ...meta, caller: getCaller() });
+    consoleLog(message);
 }
 
-export function errorMsg(message, meta = {}) {
+export function errorMsg(message, error, meta = {}) {
     logger.error(message, { ...meta, caller: getCaller() });
+    consoleError(error, message);
 }
 
 function getCaller() {

@@ -24,6 +24,8 @@ export default function CreateOrder() {
     const [url, setUrl] = useState('');
     const [modalStatus, setModalStatus] = useState('confirm');
     const [statusMessage, setStatusMessage] = useState('');
+    const [showResumeOverlay, setShowResumeOverlay] = useState(false);
+
     const setIsLoading = useLoadingSetter();
     const areas = useAreas();
 
@@ -103,7 +105,7 @@ export default function CreateOrder() {
         try {
             const result = await fetchApi('/api/job-listings', 'PUT', setIsLoading);
             clientConsole.info("Resume result:", result);
-            // 必要に応じて、成功メッセージを表示したり、状態を更新したりします
+            setShowResumeOverlay(false);
         } catch (error) {
             clientConsole.error("Failed to resume jobs:", error);
             // エラーメッセージを表示します
@@ -160,7 +162,12 @@ export default function CreateOrder() {
                 )}
             </div>
 
-            <OrderList orderList={orderList} onResume={handleResume} />
+            <OrderList
+                orderList={orderList}
+                onResume={handleResume}
+                showResumeOverlay={showResumeOverlay}
+                setShowResumeOverlay={setShowResumeOverlay}
+            />
 
             <ConfirmOrderModal
                 isOpen={isModalOpen}

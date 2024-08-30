@@ -223,7 +223,7 @@ export async function updateJobListingStatus(jobId, newStatus, additionalData = 
             estimatedEndTime: updatedJob.completedAt || null,
             queuePosition: updatedJob.status === STATUS.LIST_COMPLETED ? await getQueuePosition(updatedJob.id) : null
         };
-
+        console.log(jobData);
         // Notify all clients about the update
         globalThis.notifyAllClients({ type: 'update', data: jobData });
 

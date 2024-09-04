@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import {getActiveJobListings} from "@/features/listingCast/services/JobListingsService";
+import {getActiveJobListings} from "@/services/JobListingsService";
 import {consoleError, consoleLog} from "@/commons/utils/log";
 import {debugMsg, errorMsg} from "@/commons/utils/logger";
 

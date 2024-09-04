@@ -1,5 +1,5 @@
 import * as JobReservationRate from "@/commons/models/JobReservationRate";
-import {scrapeReservationRate} from "@/features/executeJobReRe/services/actions/scrapeReservationRate";
+import {scrapeReservationRate} from "@/services/actions/scrapeReservationRate";
 import {consoleLog} from "@/commons/utils/log";
 
 export default async function runJobReservationRate(jobReRe){

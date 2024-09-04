@@ -2,10 +2,10 @@ import prisma from "@/commons/libs/prisma";
 import {consoleError} from "@/commons/utils/log";
 import {STATUS} from "@/commons/models/JobListing";
 import {STATUS as JOB_RE_RE_STATUS} from "@/commons/models/JobReservationRate";
-import {bulkExecuteJobReRe as JobReRe_bulkExecuteJobReRe} from "@/features/executeJobReRe/services/JobReservationRateService";
+import {bulkExecuteJobReRe as JobReRe_bulkExecuteJobReRe} from "@/services/JobReservationRateService";
 import {debugMsg, errorMsg, infoMsg} from "@/commons/utils/logger";
 import * as JobListing from "@/commons/models/JobListing";
-import {scrapeCastListFromJob} from "@/features/listingCast/services/actions/scrapeAndSaveReserveInfo";
+import {scrapeCastListFromJob} from "@/services/actions/scrapeAndSaveReserveInfo";
 
 const stopExecutionMap = new Map();
 

@@ -5,9 +5,9 @@ import {
     createJobListing,
     bulkExecuteJobReRe,
     handleBulkExecute
-} from "@/features/listingCast/services/JobListingsService";
+} from "@/services/JobListingsService";
 import {consoleError, consoleLog} from "@/commons/utils/log";
-import {getJobListingsForAction} from "@/features/executeJobReRe/services/getJobListingsForAction";
+import {getJobListingsForAction} from "@/services/getJobListingsForAction";
 import {getWebParameter} from "@/commons/utils/api";
 import {FLAG_IS_NOW} from "@/app/api/job-listings/confirm/confirmJobList";
 import {STATUS} from "@/commons/models/JobListing";

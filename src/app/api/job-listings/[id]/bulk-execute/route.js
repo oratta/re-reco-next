@@ -1,4 +1,4 @@
-import { bulkExecuteJobReRe, stopBulkExecuteJobReservationRates } from "@/features/executeJobReRe/services/JobReservationRateService";
+import { bulkExecuteJobReRe, stopBulkExecuteJobReservationRates } from "@/services/JobReservationRateService";
 
 export async function POST(req, { params }) {
     const { id } = params;

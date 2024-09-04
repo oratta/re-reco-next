@@ -1,4 +1,4 @@
-import { scrapeCastListFromJob} from '@/features/listingCast/services/actions/scrapeAndSaveReserveInfo';
+import { scrapeCastListFromJob} from '@/services/actions/scrapeAndSaveReserveInfo';
 import prisma from '@/commons/libs/prisma';
 import { getQuery } from '@/commons/utils/cheerioUtil';
 import { consoleError, consoleLog } from '@/commons/utils/log';

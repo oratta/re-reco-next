@@ -1,9 +1,9 @@
 import prisma from "@/commons/libs/prisma";
-import runJobReservationRate from "@/features/executeJobReRe/services/runJobReservationRate";
+import runJobReservationRate from "@/services/runJobReservationRate";
 import * as JobReservationRate from "@/commons/models/JobReservationRate";
 import * as JobListing from "@/commons/models/JobListing";
 import {consoleError, consoleLog} from "@/commons/utils/log";
-import {formatActiveJobListing} from "@/features/listingCast/services/JobListingsService";
+import {formatActiveJobListing} from "@/services/JobListingsService";
 
 export async function bulkExecuteJobReRe(jobListing, stopExecutionMap) {
     try {

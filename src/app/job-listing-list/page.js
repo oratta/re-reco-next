@@ -1,10 +1,10 @@
 'use client';
 
-import JobListingForExec from "@/features/listingCast/components/JobListingForExec";
+import JobListingForExec from "@/app/job-listing-list/JobListingForExec";
 import {useContext, useEffect, useState} from "react";
 import {fetchApi} from "@/commons/utils/api";
 import JobProcessingContext from "@/commons/components/contexts/JobProcessingContext";
-import {establishSSEConnection,} from "@/features/listingCast/components/actions/sseConnection";
+import {establishSSEConnection,} from "@/commons/utils/sseConnection";
 import {useAreas} from "@/commons/components/contexts/AreasContext";
 import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
 

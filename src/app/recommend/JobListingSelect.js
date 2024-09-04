@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import JobListingForSearch from "@/features/reccomend/components/JobListingForSearch";
+import JobListingForSearch from "@/app/recommend/JobListingForSearch";
 
 export default function JobListingSelect({areas, jobListings, onSearch, onSubmit}) {
     console.log(areas);

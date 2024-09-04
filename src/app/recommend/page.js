@@ -1,10 +1,10 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import CategoryTab from '../../features/reccomend/components/CategoryTab';
-import ConditionSelectForm from '../../features/reccomend/components/ConditionSelectForm';
-import RecommendList from '../../features/reccomend/components/RecommendList';
-import JobListingSelect from '../../features/reccomend/components/JobListingSelect';
+import CategoryTab from '@/app/recommend/CategoryTab';
+import ConditionSelectForm from '@/app/recommend/ConditionSelectForm';
+import RecommendList from '@/app/recommend/RecommendList';
+import JobListingSelect from '@/app/recommend/JobListingSelect';
 import {fetchApi} from '@/commons/utils/api';
 import {useAreas} from "@/commons/components/contexts/AreasContext";
 import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";

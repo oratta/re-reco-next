@@ -1,4 +1,4 @@
-import {scrapeCastListInfo} from "@/features/listingCast/services/actions/scrapeAndSaveReserveInfo";
+import {scrapeCastListInfo} from "@/services/actions/scrapeAndSaveReserveInfo";
 import {getQuery} from "@/commons/utils/cheerioUtil";
 import * as Area from "@/commons/models/Area";
 import {format} from "date-fns";

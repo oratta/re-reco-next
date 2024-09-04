@@ -1,10 +1,10 @@
 import { bulkExecuteJobReRe, stopBulkExecuteJobReservationRates } from '../JobReservationRateService';
 import prisma from "@/commons/libs/prisma";
-import runJobReservationRate from "@/features/executeJobReRe/services/runJobReservationRate";
+import runJobReservationRate from "@/services/runJobReservationRate";
 import * as JobReservationRate from "@/commons/models/JobReservationRate";
 import * as JobListing from "@/commons/models/JobListing";
 import { consoleLog, consoleError } from "@/commons/utils/log";
-import { formatActiveJobListing } from "@/features/listingCast/services/JobListingsService";
+import { formatActiveJobListing } from "@/services/JobListingsService";
 
 jest.mock("@/commons/libs/prisma", () => ({
     jobReservationRate: {
@@ -17,9 +17,9 @@ jest.mock("@/commons/libs/prisma", () => ({
         findUnique: jest.fn(),
     }
 }));
-jest.mock("@/features/executeJobReRe/services/runJobReservationRate");
+jest.mock("@/services/runJobReservationRate");
 jest.mock("@/commons/utils/log");
-jest.mock("@/features/listingCast/services/JobListingsService");
+jest.mock("@/services/JobListingsService");
 
 describe('JobReservationRateService', () => {
     beforeEach(() => {

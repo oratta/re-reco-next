@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import Link from 'next/link';
 import Image from "next/image";
 import SplashScreen from "@/commons/components/elements/SplashScreen";
-import { Menu } from 'lucide-react';
+import {Menu} from 'lucide-react';
 import clientConsole from "@/commons/utils/clientConsole";
 
 export default function RootLayoutClient({children}) {
@@ -58,8 +58,8 @@ export default function RootLayoutClient({children}) {
 
         {isMenuOpen && (
             <nav className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                <Link href="/job-order" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    JobOrder
+                <Link href="/order" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Order
                 </Link>
                 <Link href="/recommend" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Recommend

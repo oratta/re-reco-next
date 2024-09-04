@@ -1,10 +1,11 @@
 import prisma from "@/commons/libs/prisma";
-import runJobListing from "@/features/listingCast/services/actions/runJobListing";
 import {consoleError} from "@/commons/utils/log";
 import {STATUS} from "@/commons/models/JobListing";
 import {STATUS as JOB_RE_RE_STATUS} from "@/commons/models/JobReservationRate";
 import {bulkExecuteJobReRe as JobReRe_bulkExecuteJobReRe} from "@/features/executeJobReRe/services/JobReservationRateService";
 import {debugMsg, errorMsg, infoMsg} from "@/commons/utils/logger";
+import * as JobListing from "@/commons/models/JobListing";
+import {scrapeCastListFromJob} from "@/features/listingCast/services/actions/scrapeAndSaveReserveInfo";
 
 const stopExecutionMap = new Map();
 
@@ -24,17 +25,29 @@ export async function createJobListing({areaCode, targetDate, condition}) {
             },
         });
     }catch(error){
-        errorMsg( "failed to create jobListing");
+        errorMsg( "failed to create jobListing", error);
         throw error;
     }
     return jobListing;
 }
 
-export async function runJobList(jobListing) {
+export async function runJobList(job) {
     // runJobを非同期で実行し、その結果を待つ
     try{
-        const result = await runJobListing(jobListing);
-        return result;
+        const jobId = job.id;
+        job = await JobListing.saveRunning(jobId)
+
+        try{
+            const {listSize} = await scrapeCastListFromJob(job);
+            job = await JobListing.saveComplete(jobId, listSize);
+        }catch(error){
+            console.log(error);
+            console.log(error.message);
+            console.log(error.stack);
+            job = JobListing.saveFailed(jobId, error.message);
+        }
+
+        return job;
     }catch (error) {
         consoleError(error, "failed to run jobListing", false);
         throw error;

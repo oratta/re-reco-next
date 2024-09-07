@@ -1,7 +1,7 @@
 import {FaSearch} from 'react-icons/fa';
 import {useState} from "react";
 
-export default function JobListingForSearch({areas, jobListings, onSearch}) {
+export default function __JobListingForSearch({areas, jobListings, onSearch}) {
     const [searchingJobId, setSearchingJobId] = useState('');
     const handleSearch = (jobId) => {
         console.log("onclick;", jobId);

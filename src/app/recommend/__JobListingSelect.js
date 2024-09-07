@@ -1,7 +1,7 @@
 import {useState} from 'react';
-import JobListingForSearch from "@/app/recommend/JobListingForSearch";
+import __JobListingForSearch from "@/app/recommend/__JobListingForSearch";
 
-export default function JobListingSelect({areas, jobListings, onSearch, onSubmit}) {
+export default function __JobListingSelect({areas, jobListings, onSearch, onSubmit}) {
     console.log(areas);
     const [selectedJobListing, setSelectedJobListing] = useState('');
 
@@ -17,7 +17,7 @@ export default function JobListingSelect({areas, jobListings, onSearch, onSubmit
 
     return (
         <>
-            <JobListingForSearch
+            <__JobListingForSearch
                 areas={areas}
                 jobListings={jobListings}
                 onSearch={handleSearch}

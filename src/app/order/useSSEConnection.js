@@ -64,7 +64,7 @@ export function useSSEConnection() {
             }
         };
     }, [handleSSEMessage]);
-    clientConsole.info(orderList);
+    clientConsole.info("orderList",orderList);
     console.log(orderList);
     return { orderList, connectionError };
 }

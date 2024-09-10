@@ -76,7 +76,7 @@ export default function JobListingCard({
              className="bjobListing p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow duration-200">
             <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold">
-                    {formatDate(jobListing?.targetDate, jobListing?.isNow, jobListing?.startTime)}<br/>{jobListing?.areaName || 'Unknown'}
+                    {renderAction(jobListing)} {formatDate(jobListing?.targetDate, jobListing?.isNow, jobListing?.startTime)}<br/>{jobListing?.areaName || 'Unknown'}
                 </h3>
                 <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center ${getStatusColor(jobListing.status)}`}>
@@ -86,21 +86,19 @@ export default function JobListingCard({
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center">
+                    {showDuration && (
                     <Clock className="mr-1" size={16}/>
-                    {jobListing.status === JOB_LISTING_STATUS.EXEC_RUNNING && (
-                        <span>
-                                    Elapsed: {formatDuration(jobListing.startTime, new Date())}
-                                </span>
                     )}
+
                     {jobListing.status === JOB_LISTING_STATUS.EXEC_COMPLETED && (
-                        <span>
-                                    Duration: {formatDuration(jobListing.startTime, jobListing.estimatedEndTime)}
-                                </span>
+                    <span>
+                        Duration: {formatDuration(jobListing.startTime, jobListing.estimatedEndTime)}
+                    </span>
                     )}
                     {jobListing.status === JOB_LISTING_STATUS.LIST_COMPLETED && (
-                        <span>
-                                    Queue Position: {renderQueuePosition(jobListing.queuePosition)}
-                                </span>
+                    <span>
+                        Queue Position: {renderQueuePosition(jobListing.queuePosition)}
+                    </span>
                     )}
                 </div>
                 <div className="flex items-center justify-end">
@@ -112,6 +110,7 @@ export default function JobListingCard({
                     <span>{jobListing.listSize}</span>
                 </div>
             </div>
+            {showProgress && (
             <div className="mt-2">
                 <div className="flex justify-between text-xs text-gray-500 mb-1">
                     <span>Progress</span>
@@ -124,19 +123,19 @@ export default function JobListingCard({
                     ></div>
                 </div>
             </div>
+            )}
             {jobListing.status === JOB_LISTING_STATUS.EXEC_RUNNING && jobListing.estimatedEndTime && (
-                <div className="mt-2 text-sm text-gray-600">
-                    Estimated completion: {new Date(jobListing.estimatedEndTime).toLocaleTimeString()}
-                </div>
+            <div className="mt-2 text-sm text-gray-600">
+                Estimated completion: {new Date(jobListing.estimatedEndTime).toLocaleTimeString()}
+            </div>
             )}
             {jobListing.status === JOB_LISTING_STATUS.LIST_COMPLETED && (
-                <div className="mt-2 text-sm text-gray-600">
-                    Estimated
-                    start: {new Date(Date.now() + (renderQueuePosition(jobListing.queuePosition) * 30 * 60000)).toLocaleTimeString()}
-                </div>
+            <div className="mt-2 text-sm text-gray-600">
+                Estimated
+                start: {new Date(Date.now() + (renderQueuePosition(jobListing.queuePosition) * 30 * 60000)).toLocaleTimeString()}
+            </div>
             )}
-        </div
-        >
+        </div>
     );
 }
 

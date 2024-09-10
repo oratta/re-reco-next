@@ -203,45 +203,6 @@ async function getQueuePosition(jobId) {
     }
 }
 
-export async function updateJobListingStatus(jobId, newStatus, additionalData = {}) {
-    try {
-        const updatedJob = await prisma.jobListing.update({
-            where: { id: jobId },
-            data: {
-                status: newStatus,
-                ...additionalData
-            },
-            include: {
-                area: true,
-                jobReservationRates: true
-            }
-        });
-
-        const jobData = {
-            id: updatedJob.id,
-            status: updatedJob.status,
-            areaName: updatedJob.area.name,
-            targetDate: updatedJob.targetDate,
-            isNow: updatedJob.condition.includes('play1'),
-            listSize: updatedJob.listCount,
-            completeCount: updatedJob.jobReservationRates.filter(rate => rate.status === 'completed').length,
-            pendingCount: updatedJob.jobReservationRates.filter(rate => rate.status === 'pending').length,
-            failedCount: updatedJob.jobReservationRates.filter(rate => rate.status === 'failed').length,
-            startTime: updatedJob.startedAt,
-            estimatedEndTime: updatedJob.completedAt || null,
-            queuePosition: updatedJob.status === STATUS.LIST_COMPLETED ? await getQueuePosition(updatedJob.id) : null
-        };
-        console.log(jobData);
-        // Notify all clients about the update
-        globalThis.notifyAllClients({ type: 'update', data: jobData });
-
-        return jobData;
-    } catch (error) {
-        errorMsg('Error updating job listing status:', error);
-        throw error;
-    }
-}
-
 export async function resumeIncompleteJobs() {
     try {
         // 実行中のジョブを探す
@@ -264,21 +225,10 @@ export async function resumeIncompleteJobs() {
 }
 
 async function findJobByStatus(status) {
-    return await prisma.jobListing.findFirst({
+    const result =  await prisma.jobListing.findFirst({
         where: { status: status },
         orderBy: { createdAt: 'asc' }
     });
-}
 
-// 定期的にジョブの状態をチェックし、必要に応じて再開する関数
-export async function checkAndResumeJobs() {
-    try {
-        const runningJob = await findJobByStatus(STATUS.EXEC_RUNNING);
-        if (!runningJob) {
-            await resumeIncompleteJobs();
-        }
-    } catch (error) {
-        errorMsg('Error checking and resuming jobs:', error);
-    }
+    return result;
 }
-

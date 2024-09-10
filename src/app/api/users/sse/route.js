@@ -137,6 +137,8 @@ globalThis.notifyAllClients = (data) => {
         }
     });
     debugMsg(`Notified ${notifiedCount} clients with data:`, data);
+    console.log(`Notified ${notifiedCount} clients with data:`);
+    console.log(data);
 };
 
 // Ensure cleanup and ping intervals are cleared when the server shuts down

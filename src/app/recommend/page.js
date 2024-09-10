@@ -4,10 +4,10 @@ import {useEffect, useState} from 'react';
 import CategoryTab from '@/app/recommend/CategoryTab';
 import ConditionSelectForm from '@/app/recommend/ConditionSelectForm';
 import RecommendList from '@/app/recommend/RecommendList';
-import JobListingSelect from '@/app/recommend/JobListingSelect';
 import {fetchApi} from '@/commons/utils/api';
 import {useAreas} from "@/commons/components/contexts/AreasContext";
 import {useLoadingSetter} from "@/commons/components/contexts/LoadingContext";
+import SelectJobListing from "@/app/recommend/SelectJobListing";
 
 export default function RecommendView() {
     const [selectedCategory, setSelectedCategory] = useState('Job_Listing');
@@ -77,14 +77,14 @@ export default function RecommendView() {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold">レコメンド</h1>
+            <h1 className="text-3xl font-bold">Recommend</h1>
             <CategoryTab selectedCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
             {selectedCategory === 'Job_Listing' ? (
-                <JobListingSelect
+                <SelectJobListing
                     areas={areas}
                     jobListings={jobListings}
                     onSearch={searchWithJobListing}
-                    onSubmit={handleConditionSubmit}/>
+                />
             ) : (
                 <ConditionSelectForm
                     category={selectedCategory}

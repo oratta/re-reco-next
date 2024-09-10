@@ -71,6 +71,15 @@ export default function JobListingCard({
         return queuePosition;
     };
 
+    function formatNumber(num) {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toString();
+    }
+
     return (
         <div key={jobListing.id}
              className="bjobListing p-4 rounded-lg shadow-sm bg-white hover:shadow-md transition-shadow duration-200">
@@ -87,42 +96,48 @@ export default function JobListingCard({
             <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center">
                     {showDuration && (
-                    <Clock className="mr-1" size={16}/>
+                        <Clock className="mr-1" size={16}/>
                     )}
 
                     {jobListing.status === JOB_LISTING_STATUS.EXEC_COMPLETED && (
-                    <span>
+                        <span>
                         Duration: {formatDuration(jobListing.startTime, jobListing.estimatedEndTime)}
                     </span>
                     )}
                     {jobListing.status === JOB_LISTING_STATUS.LIST_COMPLETED && (
-                    <span>
+                        <span>
                         Queue Position: {renderQueuePosition(jobListing.queuePosition)}
                     </span>
                     )}
                 </div>
-                <div className="flex items-center justify-end">
-                    <CheckCircle className="mr-1" size={16}/>
-                    <span>{jobListing.completeCount}</span>
-                    <XCircle className="ml-2 mr-1" size={16}/>
-                    <span>{jobListing.failedCount}</span>
-                    <ListIcon className="ml-2 mr-1" size={16}/>
-                    <span>{jobListing.listSize}</span>
+                <div className="flex items-center justify-end space-x-1">
+                    <div className="flex items-center justify-end">
+                        <CheckCircle className="flex-shrink-0" size={16}/>
+                        <span className="min-w-[3ch] text-right">{formatNumber(jobListing.completeCount)}</span>
+                    </div>
+                    <div className="flex items-center justify-end">
+                        <XCircle className="flex-shrink-0" size={16}/>
+                        <span className="min-w-[3ch] text-right">{formatNumber(jobListing.failedCount)}</span>
+                    </div>
+                    <div className="flex items-center justify-end">
+                        <ListIcon className="flex-shrink-0" size={16}/>
+                        <span className="min-w-[3ch] text-right">{formatNumber(jobListing.listSize)}</span>
+                    </div>
                 </div>
             </div>
             {showProgress && (
-            <div className="mt-2">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>Progress</span>
-                    <span>{Math.round((jobListing.completeCount / jobListing.listSize) * 100)}%</span>
+                <div className="mt-2">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Progress</span>
+                        <span>{Math.round((jobListing.completeCount / jobListing.listSize) * 100)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div
+                            className={`${getProgressBarColor(jobListing.status)} h-2.5 rounded-full`}
+                            style={{width: `${(jobListing.completeCount / jobListing.listSize) * 100}%`}}
+                        ></div>
+                    </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                        className={`${getProgressBarColor(jobListing.status)} h-2.5 rounded-full`}
-                        style={{width: `${(jobListing.completeCount / jobListing.listSize) * 100}%`}}
-                    ></div>
-                </div>
-            </div>
             )}
             {jobListing.status === JOB_LISTING_STATUS.EXEC_RUNNING && jobListing.estimatedEndTime && (
             <div className="mt-2 text-sm text-gray-600">

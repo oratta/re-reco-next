@@ -9,14 +9,23 @@ export async function getJobListingsForAction(countType) {
         }
     });
 
-    return jobListings.map(job => ({
-        id: job.id,
-        areaCode: job.areaCode,
-        targetDate: job.targetDate,
-        status: job.status,
-        completeCount: job.jobReservationRates.filter(rate => rate.status === JobReservationRate.STATUS.COMPLETED).length,
-        failedCount: job.jobReservationRates.filter(rate => rate.status === JobReservationRate.STATUS.FAILED).length,
-        pendingCount: job.jobReservationRates.filter(rate => rate.status === JobReservationRate.STATUS.PENDING).length
-    }));
+    return jobListings
+        .map(job => {
+            const completeCount = job.jobReservationRates.filter(rate => rate.status === JobReservationRate.STATUS.COMPLETED).length;
+            const failedCount = job.jobReservationRates.filter(rate => rate.status === JobReservationRate.STATUS.FAILED).length;
+            const pendingCount = job.jobReservationRates.filter(rate => rate.status === JobReservationRate.STATUS.PENDING).length;
+
+            return {
+                id: job.id,
+                areaCode: job.areaCode,
+                targetDate: job.targetDate,
+                status: job.status,
+                listSize: completeCount+failedCount+pendingCount,
+                completeCount,
+                failedCount,
+                pendingCount
+            };
+        })
+        .filter(job => job.completeCount > 0);
 }
 

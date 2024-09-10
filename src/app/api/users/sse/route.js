@@ -29,7 +29,7 @@ function cleanupClients() {
             cleanedCount++;
         }
     }
-    consoleLog(`Cleaned up ${cleanedCount} inactive clients. Active clients: ${clients.size}`);
+    debugMsg(`Cleaned up ${cleanedCount} inactive clients. Active clients: ${clients.size}`);
 }
 
 function startCleanupInterval() {
@@ -44,7 +44,7 @@ function startPingInterval() {
                 client.send({ type: 'ping', timestamp: now });
                 client.lastActivityTime = now;
             } catch (error) {
-                consoleLog(`Error pinging client ${clientId}:`, error);
+                debugMsg(`Error pinging client ${clientId}:`, error);
                 clients.delete(clientId);
             }
         });

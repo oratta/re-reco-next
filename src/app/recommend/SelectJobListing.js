@@ -12,6 +12,8 @@ export default function SelectJobListing({ areas, jobListings, onSearch }) {
                 areaName: areas.find(area => area.code === job.areaCode)?.name || 'Unknown Area',
                 targetDate: job.targetDate,
                 listCount: job.listCount || 0,
+                listSize: job.listSize || 0,
+                failedCount: job.failedCount || 0,
                 completeCount: job.completeCount || 0,
             }));
     };

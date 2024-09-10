@@ -72,16 +72,16 @@ export default function RecommendList({ data, category, onLoadMore, hasMore }) {
                 ))}
                 </tbody>
             </table>
-            {hasMore && (
-                <div className="flex justify-center mt-4">
-                    <button
-                        onClick={onLoadMore}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        次へ
-                    </button>
-                </div>
-            )}
+            {/*{hasMore && (*/}
+            {/*    <div className="flex justify-center mt-4">*/}
+            {/*        <button*/}
+            {/*            onClick={onLoadMore}*/}
+            {/*            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"*/}
+            {/*        >*/}
+            {/*            次へ*/}
+            {/*        </button>*/}
+            {/*    </div>*/}
+            {/*)}*/}
 
             <Transition appear show={isOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeModal}>

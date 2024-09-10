@@ -16,6 +16,9 @@ export async function GET(req, {params}) {
             where: {
                 jobListingId: id,
                 status: JobReservationRate.STATUS.COMPLETED,
+                reservedRate: {
+                    not: 0
+                }
             },
             include: {
                 cast: true,

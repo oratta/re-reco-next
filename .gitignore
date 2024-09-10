@@ -40,5 +40,5 @@ next-env.d.ts
 .env
 dev.db
 
-logs
+logs/*.log
 tools/llm_file

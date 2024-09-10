@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import {errorMsg} from "@/commons/utils/logger";
 
 export async function getQuery(url) {
     const headers = {
@@ -12,6 +13,7 @@ export async function getQuery(url) {
 
         // Check if the response status is not in the successful range (200-299)
         if (!response.ok) {
+            errorMsg('Scraping Error', response);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 

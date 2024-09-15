@@ -17,10 +17,16 @@ const nextConfig = {
         POSTGRES_PRISMA_PASSWORD: process.env.POSTGRES_PRISMA_PASSWORD,
         POSTGRES_PRISMA_URL_NON_POOLING: process.env.POSTGRES_PRISMA_URL_NON_POOLING,
         POSTGRES_PRISMA_URL_NO_SSL: process.env.POSTGRES_PRISMA_URL_NO_SSL
-},
+    },
     // クライアントサイドとサーバーサイドの両方で使用する設定（必要な場合）
     publicRuntimeConfig: {
         // ここに公開しても安全な設定を追加できます
+    },
+
+    logging: {
+        fetches: {
+            fullUrl: true,
+        },
     },
 };
 

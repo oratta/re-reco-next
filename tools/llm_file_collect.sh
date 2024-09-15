@@ -73,6 +73,7 @@ additional_files=(
     "./package.json"
 #    "./package-lock.json" //ファイルサイズがデカかった
     "./tailwind.config.js"
+    "./amplify.yml"
 )
 
 for file in "${additional_files[@]}"; do
